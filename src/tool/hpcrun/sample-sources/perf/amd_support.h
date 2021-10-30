@@ -16,7 +16,7 @@
 #define SIGNEW 44
 #define SET_BUFFER_SIZE 0xEU
 // 2048 bytes
-#define BUFFER_SIZE_B   (1 << 10)
+#define BUFFER_SIZE_B   (1 << 20)
 #define SET_MAX_CNT     0x6U
 #define OP_MAX_CNT  0x4000
 #define IBS_ENABLE      0x0U
