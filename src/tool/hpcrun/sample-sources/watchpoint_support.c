@@ -348,7 +348,7 @@ static int OnWatchPoint(int signum, siginfo_t *info, void *context);
 
 __attribute__((constructor))
   static void InitConfig(){
-    fprintf(stderr, "InitConfig is called\n");
+    //fprintf(stderr, "InitConfig is called\n");
     /*if(!init_adamant) {
       init_adamant = 1;*/
     //adm_initialize();
@@ -449,7 +449,7 @@ __attribute__((constructor))
       wpConfig.maxWP = custom_wp_size;
     else
       wpConfig.maxWP = i;
-    fprintf(stderr, "wpConfig.maxWP: %d\n", wpConfig.maxWP);
+    //fprintf(stderr, "wpConfig.maxWP: %d\n", wpConfig.maxWP);
     //fprintf(stderr, "custom_wp_size is %d\n", custom_wp_size);
 
     // Should we get the floating point type in an access?

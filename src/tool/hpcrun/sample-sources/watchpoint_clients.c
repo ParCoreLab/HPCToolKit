@@ -222,6 +222,7 @@ long global_l2_miss_sampling_period;
 extern int global_thread_count;
 extern int dynamic_global_thread_count;
 
+int global_load_count = 0;
 __thread int load_count = 0;
 __thread int store_count = 0;
 __thread int addr_valid_count = 0;
@@ -1103,6 +1104,7 @@ uint64_t val[3];
         CloseWitchTraceOutput();
 #endif
          */
+#if 0
 	fprintf(stderr, "original_sample_count: %ld\n", original_sample_count);
 	fprintf(stderr, "valid_sample_count1: %ld\n", valid_sample_count1);
 	fprintf(stderr, "valid_sample_count2: %ld\n", valid_sample_count2);
@@ -1110,6 +1112,7 @@ uint64_t val[3];
 	fprintf(stderr, "micro_op_sample: %ld\n", micro_op_sample);
 	fprintf(stderr, "mem_access_sample: %ld\n", mem_access_sample);
 	fprintf(stderr, "valid_mem_access_sample: %ld\n", valid_mem_access_sample);
+#endif
         hpcrun_stats_num_accessedIns_inc(accessedIns);
         hpcrun_stats_num_reuseTemporal_inc(mtReuseTemporal);
         hpcrun_stats_num_reuseSpatial_inc(mtReuseSpatial);
@@ -1125,6 +1128,7 @@ uint64_t val[3];
       hpcrun_stats_num_trueWWIns_inc(trueWWIns);
       hpcrun_stats_num_trueRWIns_inc(trueRWIns);
       hpcrun_stats_num_trueWRIns_inc(trueWRIns);
+#if 0
       fprintf(stderr, "original_sample_count: %ld\n", original_sample_count);
       fprintf(stderr, "valid_sample_count: %ld\n", valid_sample_count);
       fprintf(stderr, "valid_sample_count1: %ld\n", valid_sample_count1);
@@ -1133,7 +1137,7 @@ uint64_t val[3];
       fprintf(stderr, "store_count: %d\n", store_count);
       fprintf(stderr, "addr_valid_count: %d\n", addr_valid_count);
       fprintf(stderr, "phy_addr_valid_count: %d\n", phy_addr_valid_count);
-
+#endif
     default:
       break;
   }
@@ -1319,10 +1323,10 @@ METHOD_FN(shutdown)
   static bool
 METHOD_FN(supports_event, const char *ev_str)
 {
-  fprintf(stderr, "event is checked here\n");
+  //fprintf(stderr, "event is checked here\n");
   for(int i = 0; i < WP_MAX_CLIENTS; i++) {
     if (hpcrun_ev_is(ev_str, wpClientConfig[i].name)) {
-      fprintf(stderr, "event is supported\n");
+      //fprintf(stderr, "event is supported\n");
       return true;
     }
   }
@@ -1443,7 +1447,7 @@ METHOD_FN(process_event_list, int lush_metrics)
   for(int i = 0; i < WP_MAX_CLIENTS; i++) {
     if (hpcrun_ev_is(event, wpClientConfig[i].name)) {
       theWPConfig  = &wpClientConfig[i];
-      fprintf(stderr, "theWPConfig is initialized\n");
+      //fprintf(stderr, "theWPConfig is initialized\n");
       if(theWPConfig->id == WP_COMDETECTIVE)
         //fprintf(stderr, "watchpoint client configuration is retrieved and the id is WP_COMDETECTIVE\n");
         break;
@@ -1452,9 +1456,9 @@ METHOD_FN(process_event_list, int lush_metrics)
 
   wpStats.numImpreciseSamples = 0;
   wpStats.numWatchpointsSet = 0;
-  fprintf(stderr, "before WatchpointThreadInit\n");
+  //fprintf(stderr, "before WatchpointThreadInit\n");
   //WatchpointThreadInit(theWPConfig->wpCallback);
-  fprintf(stderr, "after WatchpointThreadInit\n");
+  //fprintf(stderr, "after WatchpointThreadInit\n");
   if(theWPConfig->configOverrideCallback){
     theWPConfig->configOverrideCallback(0);
   }
@@ -3460,7 +3464,7 @@ if((prev_timestamp < wpi->sample.bulletinBoardTimestamp) && ((trapTime - wpi->sa
       metricId =  true_wr_metric_id;
       joinNode = joinNodes[E_TRUE_WR_SHARE][joinNodeIdx];
       ts_matrix[index1][index2] = ts_matrix[index1][index2] + increment;
-      fprintf(stderr, "RAW true sharing is detected at WP trap\n");
+      //fprintf(stderr, "RAW true sharing is detected at WP trap\n");
       war_ts_matrix[index1][index2] = war_ts_matrix[index1][index2] + increment;
       if(core_id1 != core_id2) {
         ts_core_matrix[core_id1][core_id2] = ts_core_matrix[core_id1][core_id2] + increment;
@@ -3475,7 +3479,7 @@ if((prev_timestamp < wpi->sample.bulletinBoardTimestamp) && ((trapTime - wpi->sa
       joinNode = joinNodes[E_FALSE_WR_SHARE][joinNodeIdx];
       fs_matrix[index1][index2] = fs_matrix[index1][index2] + increment;
       war_fs_matrix[index1][index2] = war_fs_matrix[index1][index2] + increment;
-      fprintf(stderr, "false sharing is detected at WP trap\n");
+      //fprintf(stderr, "false sharing is detected at WP trap\n");
       if(core_id1 != core_id2) {
         fs_core_matrix[core_id1][core_id2] = fs_core_matrix[core_id1][core_id2] + increment;
         war_fs_core_matrix[core_id1][core_id2] = war_fs_core_matrix[core_id1][core_id2] + increment;
@@ -3506,7 +3510,7 @@ if((prev_timestamp < wpi->sample.bulletinBoardTimestamp) && ((trapTime - wpi->sa
       joinNode = joinNodes[E_TRUE_WW_SHARE][joinNodeIdx];
       ts_matrix[index1][index2] = ts_matrix[index1][index2] + increment;
       waw_ts_matrix[index1][index2] = waw_ts_matrix[index1][index2] + increment;
-      fprintf(stderr, "WAW true sharing is detected at WP trap\n");
+      //fprintf(stderr, "WAW true sharing is detected at WP trap\n");
       if(core_id1 != core_id2) {
         ts_core_matrix[core_id1][core_id2] = ts_core_matrix[core_id1][core_id2] + increment;
         waw_ts_core_matrix[core_id1][core_id2] = waw_ts_core_matrix[core_id1][core_id2] + increment;
@@ -3520,7 +3524,7 @@ if((prev_timestamp < wpi->sample.bulletinBoardTimestamp) && ((trapTime - wpi->sa
       joinNode = joinNodes[E_FALSE_WW_SHARE][joinNodeIdx];
       fs_matrix[index1][index2] = fs_matrix[index1][index2] + increment;
       waw_fs_matrix[index1][index2] = waw_fs_matrix[index1][index2] + increment;
-      fprintf(stderr, "false sharing is detected at WP trap\n");
+      //fprintf(stderr, "false sharing is detected at WP trap\n");
       if(core_id1 != core_id2) {
         fs_core_matrix[core_id1][core_id2] = fs_core_matrix[core_id1][core_id2] + increment;
         waw_fs_core_matrix[core_id1][core_id2] = waw_fs_core_matrix[core_id1][core_id2] + increment;
@@ -6084,6 +6088,7 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
 				}
                             	else if(mmap_data->load) {
                               		sType = ALL_LOAD;
+					global_load_count++;
 					load_count++;
 					//fprintf(stderr, "load sample is detected, load: %d\n", mmap_data->load);
 				}
@@ -6206,7 +6211,7 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
                                     metricId = false_wr_metric_id;
                                     joinNode = joinNodes[E_FALSE_WR_SHARE][joinNodeIdx];
 
-				    fprintf(stderr, "fraction of increment: %0.2lf\n", (double) (curtime - item.time) / item.expiration_period);
+				    //fprintf(stderr, "fraction of increment: %0.2lf\n", (double) (curtime - item.time) / item.expiration_period);
                                     fs_matrix[item.tid][me] = fs_matrix[item.tid][me] + increment;
                                     war_fs_matrix[item.tid][me] = fs_matrix[item.tid][me] + increment;
                                     if(item.core_id != current_core) {
@@ -6950,7 +6955,7 @@ void dump_profiling_metrics() {
 	  fprintf(stderr, "bb_store_count: %d, all_store_count: %d\n", bb_store_count, all_store_count);
 	  //double scale_ratio = (double) val[0]/amd_global_sampling_period / /*micro_op_sample;*/mem_access_sample; //mem_access_sample / store_count;
 	  //fprintf(stderr, "micro_op_sample: %d, mem_access_sample: %d, valid_mem_access_sample: %d, sample_count: %d, original_sample_count: %d, store_count: %d, scale_ratio: %0.2lf\n", micro_op_sample, mem_access_sample, valid_mem_access_sample, sample_count, original_sample_count, store_count, scale_ratio);
-	  fprintf(stderr, "micro_op_sample: %d, mem_access_sample: %d, valid_mem_access_sample: %d, sample_count: %d, original_sample_count: %d, store_count: %d\n", micro_op_sample, mem_access_sample, valid_mem_access_sample, sample_count, original_sample_count, store_count);
+	  fprintf(stderr, "micro_op_sample: %d, mem_access_sample: %d, valid_mem_access_sample: %d, sample_count: %d, original_sample_count: %d, store_count: %d, global_load_count: %d\n", micro_op_sample, mem_access_sample, valid_mem_access_sample, sample_count, original_sample_count, store_count, global_load_count);
 	  //adjust_communication_volume(scale_ratio);
   }
 //#endif

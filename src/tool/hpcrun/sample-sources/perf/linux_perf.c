@@ -362,7 +362,7 @@ perf_init()
 		.sa_flags =  SA_ONSTACK
 	};
 
-	fprintf(stderr, "perf_event_handler is set up \n");
+	//fprintf(stderr, "perf_event_handler is set up \n");
 	if(monitor_sigaction(PERF_SIGNAL, perf_event_handler, 0 /*flags*/, &sa1) == -1) {
 		fprintf(stderr, "Failed to set PERF_SIGNAL handler: %s\n", strerror(errno));
 		monitor_real_abort();
@@ -457,7 +457,7 @@ void set_global_op_sample_rate(int sample_rate)
 	static bool
 perf_thread_init(event_info_t *event, event_thread_t *et)
 {
-	fprintf(stderr, "perf_thread_init is called in thread %d for event %s with period %ld\n", TD_GET(core_profile_trace_data.id), event->metric_desc->name, event->metric_desc->period);
+	//fprintf(stderr, "perf_thread_init is called in thread %d for event %s with period %ld\n", TD_GET(core_profile_trace_data.id), event->metric_desc->name, event->metric_desc->period);
 	if(mapping_size > 0) {
 		//fprintf(stderr, "thread %d is mapped to core %d\n", TD_GET(core_profile_trace_data.id), mapping_vector[TD_GET(core_profile_trace_data.id) % mapping_size]);
 		stick_this_thread_to_core(mapping_vector[TD_GET(core_profile_trace_data.id) % mapping_size]);
@@ -517,7 +517,7 @@ perf_thread_init(event_info_t *event, event_thread_t *et)
 		EMSG("Can't set thread owner for event %d, fd: %d: %s", 
 				event->id, et->fd, strerror(errno));
 	}
-	fprintf(stderr, "event %s is initialized using perf_event_open\n", event->metric_desc->name);
+	//fprintf(stderr, "event %s is initialized using perf_event_open\n", event->metric_desc->name);
 	ioctl(et->fd, PERF_EVENT_IOC_RESET, 0);
 	return (ret >= 0);
 	} else {
@@ -549,7 +549,7 @@ perf_thread_init(event_info_t *event, event_thread_t *et)
                 ioctl(et->fd, RESET_BUFFER);
 		ioctl(et->fd, REG_CURRENT_PROCESS); 
 		ioctl(et->fd, ASSIGN_FD, et->fd);
-		fprintf(stderr, "everything is fine\n");
+		//fprintf(stderr, "everything is fine\n");
 	}
 }
 
@@ -926,14 +926,14 @@ METHOD_FN(supports_event, const char *ev_str)
 	hpcrun_extract_ev_thresh(ev_str, sizeof(ev_tmp), ev_tmp, &thresh, DEFAULT_THRESHOLD) ;
 
 	// check if the event is a predefined event
-	fprintf(stderr, "support of event is checked here\n");
+	//fprintf(stderr, "support of event is checked here\n");
 	if (event_custom_find(ev_tmp) != NULL) {
-		fprintf(stderr, "event is supported here\n");
+		//fprintf(stderr, "event is supported here\n");
 		return true;
 	}
 
 	if (hpcrun_ev_is(ev_tmp, "IBS_OP") || hpcrun_ev_is(ev_tmp, "AMD_L1_DATA_ACCESS") || hpcrun_ev_is(ev_tmp, "AMD_MICRO_OP_RETIRED")) {
-		fprintf(stderr, "event %s is supported with period: %ld\n", ev_tmp, thresh);
+		//fprintf(stderr, "event %s is supported with period: %ld\n", ev_tmp, thresh);
 		return true;
 	}
 
@@ -956,7 +956,7 @@ METHOD_FN(process_event_list, int lush_metrics)
 {
 	TMSG(LINUX_PERF, "process event list");
 
-	fprintf(stderr, "this process_event_list is called\n");
+	//fprintf(stderr, "this process_event_list is called\n");
 	metric_desc_properties_t prop = metric_property_none;
 	char *event;
 
@@ -1182,11 +1182,11 @@ METHOD_FN(gen_event_set, int lush_metrics)
 {
 	TMSG(LINUX_PERF, "gen_event_set");
 
-	fprintf(stderr, "this gen_event_set is called\n");
+	//fprintf(stderr, "this gen_event_set is called\n");
 	int nevents 	  = (self->evl).nevents;
 	int num_metrics = hpcrun_get_num_metrics();
 
-	fprintf(stderr, "this gen_event_set is called with %d events\n", nevents);
+	//fprintf(stderr, "this gen_event_set is called with %d events\n", nevents);
 	// a list of event information, private for each thread
 	event_thread_t  *event_thread = (event_thread_t*) hpcrun_malloc(sizeof(event_thread_t) * nevents);
 
