@@ -529,26 +529,30 @@ perf_thread_init(event_info_t *event, event_thread_t *et)
                 et->fd = open(filename, O_RDONLY | O_NONBLOCK);
 
                 if (et->fd < 0) {
-                        fprintf(stderr, "Could not open %s\n", filename);
-                        return false;
+                        //fprintf(stderr, "Could not open %s by thread %d\n", filename, TD_GET(core_profile_trace_data.id));
+                        //return false;
                         //continue;
-                } else if(!amd_ibs_flag){
-			amd_ibs_flag = true;
-		}
-
-                ioctl(et->fd, SET_BUFFER_SIZE, BUFFER_SIZE_B);
+                } else {
+			if(!amd_ibs_flag){
+			//fprintf(stderr, "Could open %s by thread %d\n", filename, TD_GET(core_profile_trace_data.id));
+				amd_ibs_flag = true;
+			}
+			//fprintf(stderr, "Could open %s by thread %d\n", filename, TD_GET(core_profile_trace_data.id));
+                	ioctl(et->fd, SET_BUFFER_SIZE, BUFFER_SIZE_B);
                 //ioctl(fd[cpu], SET_POLL_SIZE, poll_size / sizeof(ibs_op_t));
-		set_global_op_sample_rate(event->metric_desc->period);
-                ioctl(et->fd, SET_MAX_CNT, op_cnt_max_to_set/*event->metric_desc->period*/);
-		if (ioctl(et->fd, IBS_ENABLE)) {
-                        fprintf(stderr, "IBS op enable failed on cpu %d\n", my_id);
-                        return false;
+			set_global_op_sample_rate(event->metric_desc->period);
+                	ioctl(et->fd, SET_MAX_CNT, op_cnt_max_to_set/*event->metric_desc->period*/);
+			if (ioctl(et->fd, IBS_ENABLE)) {
+                        	fprintf(stderr, "IBS op enable failed on cpu %d\n", my_id);
+                        	return false;
                         //continue;
-                }
+                	}
 		//for (int i = 0; i < nopfds; i++)
-                ioctl(et->fd, RESET_BUFFER);
-		ioctl(et->fd, REG_CURRENT_PROCESS); 
-		ioctl(et->fd, ASSIGN_FD, et->fd);
+                	ioctl(et->fd, RESET_BUFFER);
+			ioctl(et->fd, ASSIGN_FD, et->fd);
+		}
+		ioctl(et->fd, REG_CURRENT_PROCESS);
+	        return true;	
 		//fprintf(stderr, "everything is fine\n");
 	}
 }
@@ -563,7 +567,7 @@ perf_thread_init(event_info_t *event, event_thread_t *et)
 perf_thread_fini(int nevents, event_thread_t *event_thread)
 {
 	for(int i=0; i<nevents; i++) {
-		if (event_thread[i].fd) 
+		if (event_thread[i].fd >= 0) 
 			close(event_thread[i].fd);
 
 		if(hpcrun_ev_is(event_thread[i].event->metric_desc->name, "IBS_OP") && event_thread[i].fd >= 0)
@@ -1531,7 +1535,7 @@ sig_event_handler(int n, siginfo_t *info, void *unused)
         fd = info->si_fd;//info->si_int;
         //printf ("Received signal from kernel : Value =  %u\n", check);
         //read(check, read_buf, 1024);
-        //printf("signal %d from file with fd %d\n", n, fd);
+        printf("signal %d from file with fd %d in thread %d\n", n, fd, my_id);
 	ioctl(fd, IBS_DISABLE);
 	// before
 	int tmp = 0;
@@ -1617,8 +1621,8 @@ perf_event_handler(
                 // signal not from perf event
                 TMSG(LINUX_PERF, "signal si_code %d with fd %d: unknown perf event",
                                 siginfo->si_fd, fd);
-                fprintf(stderr, "signal si_code %d with fd %d: unknown perf event\n", siginfo->si_code, fd);
-                hpcrun_safe_exit();
+                //fprintf(stderr, "signal si_code %d with fd %d: unknown perf event\n", siginfo->si_code, fd);
+                //hpcrun_safe_exit();
 
 		if(amd_ibs_flag)
         		ibs_restart_perf_event(fd);
@@ -1627,9 +1631,9 @@ perf_event_handler(
 		//ibs_ctl_reload(nevents, event_thread);
                 perf_start_all(nevents, event_thread);
 
-                return 1; // tell monitor the signal has not been handled.
+                return 0; // tell monitor the signal has not been handled.
         }
-	//fprintf(stderr, "sample of event with name %s is detected\n", current->event->metric_desc->name);
+	//fprintf(stderr, "sample of event with name %s is detected with fd: %d in thread: %d\n", current->event->metric_desc->name, fd, TD_GET(core_profile_trace_data.id));
 	//fprintf(stderr, "in perf_event_handler 1\n");
 
 	// ----------------------------------------------------------------------------
