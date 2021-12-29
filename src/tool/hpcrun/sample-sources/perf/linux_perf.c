@@ -457,7 +457,7 @@ void set_global_op_sample_rate(int sample_rate)
 	static bool
 perf_thread_init(event_info_t *event, event_thread_t *et)
 {
-	//fprintf(stderr, "perf_thread_init is called in thread %d for event %s with period %ld\n", TD_GET(core_profile_trace_data.id), event->metric_desc->name, event->metric_desc->period);
+	fprintf(stderr, "perf_thread_init is called in thread %d for event %s with period %ld\n", TD_GET(core_profile_trace_data.id), event->metric_desc->name, event->metric_desc->period);
 	if(mapping_size > 0) {
 		//fprintf(stderr, "thread %d is mapped to core %d\n", TD_GET(core_profile_trace_data.id), mapping_vector[TD_GET(core_profile_trace_data.id) % mapping_size]);
 		stick_this_thread_to_core(mapping_vector[TD_GET(core_profile_trace_data.id) % mapping_size]);
@@ -563,9 +563,12 @@ perf_thread_init(event_info_t *event, event_thread_t *et)
 //  - unmap the memory
 //  - close file descriptors used by each event
 //----------------------------------------------------------
+
+#if 0
 	static void
 perf_thread_fini(int nevents, event_thread_t *event_thread)
 {
+	fprintf(stderr, "fini\n");
 	for(int i=0; i<nevents; i++) {
 		if (event_thread[i].fd >= 0) 
 			close(event_thread[i].fd);
@@ -580,6 +583,23 @@ perf_thread_fini(int nevents, event_thread_t *event_thread)
 				perf_unmmap(event_thread[i].mmap);
 		}
 	}
+}
+#endif
+
+
+        static void
+perf_thread_fini(int nevents, event_thread_t *event_thread)
+{
+        fprintf(stderr, "fini\n");
+        for(int i=0; i<nevents; i++) {
+		if(!hpcrun_ev_is(event_thread[i].event->metric_desc->name, "IBS_OP")) {
+                	if (event_thread[i].fd)
+                        	close(event_thread[i].fd);
+
+                        if (event_thread[i].mmap)
+                                perf_unmmap(event_thread[i].mmap);
+                }
+        }
 }
 
 
@@ -854,6 +874,7 @@ METHOD_FN(thread_fini_action)
 	static void
 METHOD_FN(stop)
 {
+	fprintf(stderr, "stop\n");
 	TMSG(LINUX_PERF, "%d: stop", self->sel_idx);
 
 	source_state_t my_state = TD_GET(ss_state)[self->sel_idx];
@@ -878,6 +899,15 @@ METHOD_FN(stop)
 	td->ss_state[self->sel_idx] = STOP;
 
 	TMSG(LINUX_PERF, "%d: stop OK", self->sel_idx);
+
+	for(int i=0; i<nevents; i++) {
+		if(hpcrun_ev_is(event_thread[i].event->metric_desc->name, "IBS_OP")) {
+			if (event_thread[i].fd >= 0) {
+                        	close(event_thread[i].fd);
+				free(global_buffer);
+			}
+		}
+	}
 }
 
 // --------------------------------------------------------------------------
@@ -886,6 +916,7 @@ METHOD_FN(stop)
 	static void
 METHOD_FN(shutdown)
 {
+	fprintf(stderr, "shutdown\n");
 	TMSG(LINUX_PERF, "shutdown");
 
 	METHOD_CALL(self, stop); // make sure stop has been called
