@@ -457,7 +457,7 @@ void set_global_op_sample_rate(int sample_rate)
 	static bool
 perf_thread_init(event_info_t *event, event_thread_t *et)
 {
-	fprintf(stderr, "perf_thread_init is called in thread %d for event %s with period %ld\n", TD_GET(core_profile_trace_data.id), event->metric_desc->name, event->metric_desc->period);
+	//fprintf(stderr, "perf_thread_init is called in thread %d for event %s with period %ld\n", TD_GET(core_profile_trace_data.id), event->metric_desc->name, event->metric_desc->period);
 	if(mapping_size > 0) {
 		//fprintf(stderr, "thread %d is mapped to core %d\n", TD_GET(core_profile_trace_data.id), mapping_vector[TD_GET(core_profile_trace_data.id) % mapping_size]);
 		stick_this_thread_to_core(mapping_vector[TD_GET(core_profile_trace_data.id) % mapping_size]);
@@ -542,16 +542,25 @@ perf_thread_init(event_info_t *event, event_thread_t *et)
                 //ioctl(fd[cpu], SET_POLL_SIZE, poll_size / sizeof(ibs_op_t));
 			set_global_op_sample_rate(event->metric_desc->period);
                 	ioctl(et->fd, SET_MAX_CNT, op_cnt_max_to_set/*event->metric_desc->period*/);
+#if 0
 			if (ioctl(et->fd, IBS_ENABLE)) {
                         	fprintf(stderr, "IBS op enable failed on cpu %d\n", my_id);
                         	return false;
                         //continue;
                 	}
+#endif
+			ioctl(et->fd, RESET_BUFFER);
+                        ioctl(et->fd, ASSIGN_FD, et->fd);
+                        ioctl(et->fd, REG_CURRENT_PROCESS);
+			ioctl(et->fd, IBS_ENABLE);
 		//for (int i = 0; i < nopfds; i++)
-                	ioctl(et->fd, RESET_BUFFER);
+#if 0
+               		ioctl(et->fd, RESET_BUFFER);
 			ioctl(et->fd, ASSIGN_FD, et->fd);
+			ioctl(et->fd, REG_CURRENT_PROCESS);
+#endif
 		}
-		ioctl(et->fd, REG_CURRENT_PROCESS);
+		//ioctl(et->fd, REG_CURRENT_PROCESS);
 	        return true;	
 		//fprintf(stderr, "everything is fine\n");
 	}
@@ -590,7 +599,7 @@ perf_thread_fini(int nevents, event_thread_t *event_thread)
         static void
 perf_thread_fini(int nevents, event_thread_t *event_thread)
 {
-        fprintf(stderr, "fini\n");
+        //fprintf(stderr, "fini\n");
         for(int i=0; i<nevents; i++) {
 		if(!hpcrun_ev_is(event_thread[i].event->metric_desc->name, "IBS_OP")) {
                 	if (event_thread[i].fd)
@@ -693,10 +702,11 @@ record_sample(event_thread_t *current, perf_mmap_data_t *mmap_data,
 		td->precise_pc = 0;
 	}
 	//fprintf(stderr, "counter: %0.2lf is incremented\n", counter); 
+//#if 0
 	*sv = hpcrun_sample_callpath(context, current->event->metric,
 			(hpcrun_metricVal_t) {.r=counter},
 			0/*skipInner*/, 0/*isSync*/, &info);
-
+//#endif
 	// no need to reset the precise_pc; hpcrun_sample_callpath does so
 	// td->precise_pc = 0;
 
@@ -731,10 +741,12 @@ record_sample(event_thread_t *current, perf_mmap_data_t *mmap_data,
 
 	if(WatchpointClientActive()){
 		//fprintf(stderr, "OnSample is called\n");
+//#if 0
 		OnSample(mmap_data,
 				/*hpcrun_context_pc(context)*/ context,
 				sv->sample_node,
 				current->event->metric);
+//#endif
 	}
 
 	return sv;
@@ -874,7 +886,7 @@ METHOD_FN(thread_fini_action)
 	static void
 METHOD_FN(stop)
 {
-	fprintf(stderr, "stop\n");
+	//fprintf(stderr, "stop\n");
 	TMSG(LINUX_PERF, "%d: stop", self->sel_idx);
 
 	source_state_t my_state = TD_GET(ss_state)[self->sel_idx];
@@ -916,7 +928,7 @@ METHOD_FN(stop)
 	static void
 METHOD_FN(shutdown)
 {
-	fprintf(stderr, "shutdown\n");
+	//fprintf(stderr, "shutdown\n");
 	TMSG(LINUX_PERF, "shutdown");
 
 	METHOD_CALL(self, stop); // make sure stop has been called
@@ -1689,7 +1701,7 @@ perf_event_handler(
 		perf_start_all(nevents, event_thread);
 		return 0; // tell monitor the signal has been handled.
 	}
-
+//#if 0
 	//fprintf(stderr, "in perf_event_handler 2\n");
 
 	// ----------------------------------------------------------------------------
@@ -1756,6 +1768,7 @@ perf_event_handler(
 	// ----------------------------------------------------------------------------
 	// parse the buffer until it finishes reading all buffers
 	// ----------------------------------------------------------------------------
+//#if 0
 	int more_data = 0;
 	char * sample_buffer;
 	if(amd_ibs_event)
@@ -1768,7 +1781,7 @@ perf_event_handler(
 	int offset = 0;
 	//fprintf(stderr, "event with name %s is about to be read\n", current->event->metric_desc->name);
 	int i = 0;
-
+//#if 0
 	do {
 		perf_mmap_data_t mmap_data;
 		memset(&mmap_data, 0, sizeof(perf_mmap_data_t));
@@ -1780,7 +1793,7 @@ perf_event_handler(
 		{
 			memcpy ( sample_buffer, global_buffer + offset, sizeof(ibs_op_t) );
 			i++;
-                	offset += i * sizeof(ibs_op_t);
+                	offset = i * sizeof(ibs_op_t);
                 	ibs_op_t *op_data = (ibs_op_t *) sample_buffer;
 			original_sample_count++;
 			//fprintf(stderr, "more_data: %d\n", more_data);
@@ -1818,11 +1831,12 @@ perf_event_handler(
 #endif
 
 	} while (more_data > 0);
-
+//#endif
 	if(amd_ibs_event)
         {
                 free(sample_buffer);
         }
+//#endif
 	hpcrun_safe_exit();
 
 	if(hpcrun_ev_is(current->event->metric_desc->name, "IBS_OP"))

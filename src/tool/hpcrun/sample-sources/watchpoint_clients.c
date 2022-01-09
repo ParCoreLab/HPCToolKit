@@ -4767,6 +4767,7 @@ int ibs_get_mem_width(int mem_width) {
 bool OnSample(perf_mmap_data_t * mmap_data, /*void * contextPC*/void * context, cct_node_t *node, int sampledMetricId) {
   if (strncmp (hpcrun_id2metric(sampledMetricId)->name,"L2_RQSTS.MISS", 13) == 0)
     fprintf(stderr, "there is an L2_RQSTS.MISS 1\n"); 
+  //fprintf(stderr, "in OnSample\n");
   void * contextPC = hpcrun_context_pc(context); 
   void * data_addr = mmap_data->addr; 
   void * precisePC = (amd_ibs_flag || (mmap_data->header_misc & PERF_RECORD_MISC_EXACT_IP)) ? mmap_data->ip : 0;
@@ -4790,9 +4791,15 @@ bool OnSample(perf_mmap_data_t * mmap_data, /*void * contextPC*/void * context, 
   }
 //#endif
   //fprintf(stderr, "no problem 1\n");
-  if (node == NULL) {
+#if 0
+  if (!amd_ibs_flag  && node == NULL) {
     goto ErrExit; // incorrect CCT
   }
+#endif
+
+  if (node == NULL) {
+    goto ErrExit; // incorrect CCT
+  } 
 
   //fprintf(stderr, "no problem 2\n");
 
