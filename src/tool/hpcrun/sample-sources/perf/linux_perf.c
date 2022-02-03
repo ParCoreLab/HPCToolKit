@@ -170,6 +170,7 @@ int sched_getcpu(void);
 
 int n_op_samples[1024];
 int n_lost_op_samples[1024];
+int in_hpctoolkit_ibs[1024];
 
 int op_cnt_max_to_set = 0;
 int buffer_size = 0;
@@ -397,6 +398,9 @@ ibs_perf_init()
         }
 
         monitor_real_pthread_sigmask(SIG_UNBLOCK, &sig_mask, NULL);
+	for(int i = 0; i < 1024; i++) {
+		in_hpctoolkit_ibs[i] = 0;
+	}
 //#endif
 }
 
@@ -458,6 +462,8 @@ void set_global_op_sample_rate(int sample_rate)
 perf_thread_init(event_info_t *event, event_thread_t *et)
 {
 	//fprintf(stderr, "perf_thread_init is called in thread %d for event %s with period %ld\n", TD_GET(core_profile_trace_data.id), event->metric_desc->name, event->metric_desc->period);
+	int my_id = sched_getcpu();
+	in_hpctoolkit_ibs[my_id] = 1;
 	if(mapping_size > 0) {
 		//fprintf(stderr, "thread %d is mapped to core %d\n", TD_GET(core_profile_trace_data.id), mapping_vector[TD_GET(core_profile_trace_data.id) % mapping_size]);
 		stick_this_thread_to_core(mapping_vector[TD_GET(core_profile_trace_data.id) % mapping_size]);
@@ -483,6 +489,7 @@ perf_thread_init(event_info_t *event, event_thread_t *et)
 				                                event->id, event->attr.config, strerror(errno));
 		EMSG("Linux perf event open %d (%d) failed: %s",
 				event->id, event->attr.config, strerror(errno));
+		in_hpctoolkit_ibs[my_id] = 0;
 		return false;
 	}
 
@@ -518,13 +525,14 @@ perf_thread_init(event_info_t *event, event_thread_t *et)
 				event->id, et->fd, strerror(errno));
 	}
 	//fprintf(stderr, "event %s is initialized using perf_event_open\n", event->metric_desc->name);
+	in_hpctoolkit_ibs[my_id] = 0;
 	ioctl(et->fd, PERF_EVENT_IOC_RESET, 0);
 	return (ret >= 0);
 	} else {
 		char filename [64];
 		et->event = event;
 		global_buffer = malloc(BUFFER_SIZE_B);
-		int my_id = sched_getcpu();//TD_GET(core_profile_trace_data.id);
+		//int my_id = sched_getcpu();//TD_GET(core_profile_trace_data.id);
 		sprintf(filename, "/dev/cpu/%d/ibs/op", my_id);
                 et->fd = open(filename, O_RDONLY | O_NONBLOCK);
 
@@ -560,6 +568,7 @@ perf_thread_init(event_info_t *event, event_thread_t *et)
 			ioctl(et->fd, REG_CURRENT_PROCESS);
 #endif
 		}
+		in_hpctoolkit_ibs[my_id] = 0;
 		//ioctl(et->fd, REG_CURRENT_PROCESS);
 	        return true;	
 		//fprintf(stderr, "everything is fine\n");
@@ -703,9 +712,11 @@ record_sample(event_thread_t *current, perf_mmap_data_t *mmap_data,
 	}
 	//fprintf(stderr, "counter: %0.2lf is incremented\n", counter); 
 //#if 0
+	//fprintf(stderr, "context: %lx before\n", context);
 	*sv = hpcrun_sample_callpath(context, current->event->metric,
 			(hpcrun_metricVal_t) {.r=counter},
 			0/*skipInner*/, 0/*isSync*/, &info);
+	//fprintf(stderr, "context: %lx after\n", context);
 //#endif
 	// no need to reset the precise_pc; hpcrun_sample_callpath does so
 	// td->precise_pc = 0;
@@ -1657,6 +1668,9 @@ perf_event_handler(
 // check counter here 1
 // check counter here 2
 
+	int my_id = sched_getcpu();
+
+
 	int fd;
 	fd = siginfo->si_fd;
 	event_thread_t *current = get_fd_index(nevents, fd, event_thread);
@@ -1701,6 +1715,19 @@ perf_event_handler(
 		perf_start_all(nevents, event_thread);
 		return 0; // tell monitor the signal has been handled.
 	}
+
+	if (in_hpctoolkit_ibs[my_id] == 1) {
+                //ibs_ctl_reload(nevents, event_thread);
+
+		if(hpcrun_ev_is(current->event->metric_desc->name, "IBS_OP"))
+                        ibs_restart_perf_event(fd);
+                else
+                        restart_perf_event(fd);
+
+                perf_start_all(nevents, event_thread);
+
+                return 0;
+        }
 //#if 0
 	//fprintf(stderr, "in perf_event_handler 2\n");
 
