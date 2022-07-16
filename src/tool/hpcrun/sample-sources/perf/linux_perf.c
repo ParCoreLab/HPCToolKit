@@ -557,7 +557,7 @@ perf_thread_init(event_info_t *event, event_thread_t *et)
                         //continue;
                 	}
 #endif
-			//ioctl(et->fd, RESET_BUFFER);
+			ioctl(et->fd, RESET_BUFFER);
                         ioctl(et->fd, ASSIGN_FD, et->fd);
                         ioctl(et->fd, REG_CURRENT_PROCESS);
 			ioctl(et->fd, IBS_ENABLE);
@@ -867,13 +867,9 @@ METHOD_FN(start)
 			TMSG(LINUX_PERF, "error fd %d in IOC_RESET: %s", event_thread[i].fd, strerror(errno));
 		}
 
-#if 0
 		if(hpcrun_ev_is(event_thread[i].event->metric_desc->name, "IBS_OP"))
 			ibs_restart_perf_event( event_thread[i].fd );
 		else
-			restart_perf_event( event_thread[i].fd );
-#endif
-		if(!hpcrun_ev_is(event_thread[i].event->metric_desc->name, "IBS_OP"))
 			restart_perf_event( event_thread[i].fd );
 	}
 
@@ -1684,14 +1680,11 @@ perf_event_handler(
                                 siginfo->si_fd, fd);
                 //fprintf(stderr, "signal si_code %d with fd %d: unknown perf event\n", siginfo->si_code, fd);
                 //hpcrun_safe_exit();
-#if 0
+
 		if(amd_ibs_flag)
         		ibs_restart_perf_event(fd);
 		else
                 	restart_perf_event(fd);
-#endif
-		if(!amd_ibs_flag)
-			restart_perf_event(fd);
 		//ibs_ctl_reload(nevents, event_thread);
                 perf_start_all(nevents, event_thread);
 
@@ -1713,13 +1706,9 @@ perf_event_handler(
 	if (! hpcrun_safe_enter_async(pc) /*&& !hpcrun_ev_is(current->event->metric_desc->name, "IBS_OP")*/) {
 //#endif
 		hpcrun_stats_num_samples_blocked_async_inc();
-#if 0
 		if(hpcrun_ev_is(current->event->metric_desc->name, "IBS_OP"))
 			ibs_restart_perf_event(/*siginfo->si_int*/ siginfo->si_fd);
 		else
-			restart_perf_event(/*siginfo->si_int*/ siginfo->si_fd);
-#endif
-		if(!hpcrun_ev_is(current->event->metric_desc->name, "IBS_OP"))
 			restart_perf_event(/*siginfo->si_int*/ siginfo->si_fd);
 		//fprintf(stderr, "quit perf_event_handler pc: %lx\n", pc);
 		//ibs_ctl_reload(nevents, event_thread);
@@ -1729,14 +1718,12 @@ perf_event_handler(
 
 	if (in_hpctoolkit_ibs[my_id] == 1) {
                 //ibs_ctl_reload(nevents, event_thread);
-#if 0
+
 		if(hpcrun_ev_is(current->event->metric_desc->name, "IBS_OP"))
                         ibs_restart_perf_event(fd);
                 else
                         restart_perf_event(fd);
-#endif
-		if(!hpcrun_ev_is(current->event->metric_desc->name, "IBS_OP"))
-			restart_perf_event(fd);
+
                 perf_start_all(nevents, event_thread);
 
                 return 0;
@@ -1800,8 +1787,7 @@ perf_event_handler(
 	if(hpcrun_ev_is(current->event->metric_desc->name, "IBS_OP") && current->fd >= 0)
 	{
 		amd_ibs_event = true;
-		//tmp = read(fd, global_buffer, BUFFER_SIZE_B);
-		tmp = read(fd, global_buffer, sizeof(ibs_op_t));
+		tmp = read(fd, global_buffer, BUFFER_SIZE_B);
 	}
 
 	// Increment the number of overflows for the current event
@@ -1880,13 +1866,9 @@ perf_event_handler(
 //#endif
 	hpcrun_safe_exit();
 
-#if 0
 	if(hpcrun_ev_is(current->event->metric_desc->name, "IBS_OP"))
 		ibs_restart_perf_event(fd);
 	else
-		restart_perf_event(fd);
-#endif
-	if(!hpcrun_ev_is(current->event->metric_desc->name, "IBS_OP"))
 		restart_perf_event(fd);
 
 	//ibs_ctl_reload(nevents, event_thread);
