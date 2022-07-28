@@ -467,6 +467,7 @@ perf_thread_init(event_info_t *event, event_thread_t *et)
 	if(mapping_size > 0) {
 		//fprintf(stderr, "thread %d is mapped to core %d\n", TD_GET(core_profile_trace_data.id), mapping_vector[TD_GET(core_profile_trace_data.id) % mapping_size]);
 		stick_this_thread_to_core(mapping_vector[TD_GET(core_profile_trace_data.id) % mapping_size]);
+		my_id = sched_getcpu();
 	}
 
 	if(!hpcrun_ev_is(event->metric_desc->name, "IBS_OP")) {
