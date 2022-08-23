@@ -961,7 +961,7 @@ void WatchpointThreadInit(WatchPointUpCall_t func){
 
   //if LBR is supported create a dummy PERF_TYPE_HARDWARE for Linux workaround
   if(event_id != WP_AMD_COMM && event_id != WP_AMD_REUSE && event_id != WP_AMD_REUSETRACKER && wpConfig.isLBREnabled) {
-    fprintf(stderr, "failed at CreateDummyHardwareEvent amd_ibs_flag: %d\n", amd_ibs_flag);
+    //fprintf(stderr, "failed at CreateDummyHardwareEvent amd_ibs_flag: %d\n", amd_ibs_flag);
     CreateDummyHardwareEvent();
   }
 
