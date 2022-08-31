@@ -4734,7 +4734,7 @@ void hashInsertwithTime(struct SharedEntry item, uint64_t cur_time, uint64_t pre
   void * cacheLineBaseAddress = item.cacheLineBaseAddress;
   int hashIndex = hashCode(cacheLineBaseAddress);
 
-  if ((bulletinBoard.hashTable[hashIndex].cacheLineBaseAddress == -1) || (item.tid != bulletinBoard.hashTable[hashIndex].tid) || ((item.time - bulletinBoard.hashTable[hashIndex].time) > (cur_time - prev_time))) {
+  if ((bulletinBoard.hashTable[hashIndex].cacheLineBaseAddress == -1) || (item.tid != bulletinBoard.hashTable[hashIndex].tid) || ((item.time - bulletinBoard.hashTable[hashIndex].time) > 2 * (cur_time - prev_time))) { 
     bulletinBoard.hashTable[hashIndex] = item;
   }
 }
@@ -6377,7 +6377,7 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
                             }
 
                             // if ( A1 is not STORE) or (entry != NULL and M2 has not expired) then
-                            if(/*(accessType == LOAD)*/ (sType == ALL_LOAD)  || ((item.cacheLineBaseAddress != -1) && (me == item.tid) && ((curtime - item.time) <= (storeCurTime - storeLastTime)))) {
+                            if(/*(accessType == LOAD)*/ /*(sType == ALL_LOAD)  ||*/ ((item.cacheLineBaseAddress != -1) && (me == item.tid) && ((curtime - item.time) <= 2 * (curtime - lastTime)))) { 
                             } else /*if(mmap_data->addr_valid)*/ {
                               // BulletinBoard.TryAtomicPut(key = L1 , value = < M1 , δ1 , ts1 , T1 >)
                               uint64_t bulletinCounter = bulletinBoard.counter;
@@ -6399,11 +6399,11 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
                                   inserted_item.node = node;
                                   inserted_item.cacheLineBaseAddress = cacheLineBaseAddressVar;
                                   inserted_item.prev_transfer_counter = 0;
-                                  inserted_item.expiration_period = /*(lastTime == 0 ? 0 : 2 * (curtime - lastTime));*/ (storeLastTime == 0 ? 0 : (storeCurTime - storeLastTime));
+                                  inserted_item.expiration_period = (lastTime == 0 ? 0 : 2 * (curtime - lastTime)); 
 				  inserted_item.valid_sample_count = valid_sample_count;
                                   int bb_flag = 0;
                                   //__sync_synchronize();
-                                  hashInsertwithTime(inserted_item, storeCurTime, storeLastTime);
+                                  hashInsertwithTime(inserted_item, curtime, lastTime); 
 				  //valid_sample_count = 0;
                                   //__sync_synchronize();
 				  bb_store_count++;
