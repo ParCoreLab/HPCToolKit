@@ -71,7 +71,7 @@
  * libmonitor
  *****************************************************************************/
 #include <monitor.h>
-
+#include <lib/prof-lean/spinlock.h>
 /******************************************************************************
  * local includes
  *****************************************************************************/
@@ -887,6 +887,7 @@ static WpClientConfig_t * theWPConfig = NULL;
 bool WatchpointClientActive(){
   return theWPConfig != NULL;
 }
+#endif
 
 #define MAX_BLACK_LIST_ADDRESS (1024)
 
@@ -954,7 +955,7 @@ static void PopulateBlackListAddresses() {
   spinlock_unlock(&blackListLock);
 }
 
-
+#if 0
   static void
 METHOD_FN(init)
 {
@@ -4030,6 +4031,7 @@ static inline bool isTdataAddress(void *addr) {
   if ((addr > tdata-100) && (addr < tdata+100)) return true;
   return false;
 }
+#endif
 
 static inline bool IsBlackListedWatchpointAddress(void *addr){
   for(int i = 0; i < numBlackListAddresses; i++){
@@ -4072,7 +4074,7 @@ static inline bool IsValidAddress(void * addr, void * pc){
   return false;
 }
 
-
+#if 0
 void ReadSharedDataTransactionally(SharedData_t *localSharedData){
   // Laport's STM
   do{
@@ -4771,94 +4773,51 @@ int ibs_get_mem_width(int mem_width) {
 #endif
 
 bool OnSample(perf_mmap_data_t * mmap_data, /*void * contextPC*/void * context, cct_node_t *node, int sampledMetricId) {
-#if 0
-  if (strncmp (hpcrun_id2metric(sampledMetricId)->name,"L2_RQSTS.MISS", 13) == 0)
-    fprintf(stderr, "there is an L2_RQSTS.MISS 1\n"); 
-  //fprintf(stderr, "in OnSample\n");
-#endif
-  //fprintf(stderr, "in OnSample\n");
-  void * contextPC = hpcrun_context_pc(context); 
-  void * data_addr = mmap_data->addr; 
-  //void * precisePC = (amd_ibs_flag || (mmap_data->header_misc & PERF_RECORD_MISC_EXACT_IP)) ? mmap_data->ip : 0;
-  void * precisePC = (mmap_data->header_misc & PERF_RECORD_MISC_EXACT_IP) ? mmap_data->ip : 0;
-  // Filert out address and PC (0 or kernel address will not pass)
-  //fprintf(stderr, "OnSample is called %lx\n", data_addr);
-#if 0
-  if (strncmp (hpcrun_id2metric(sampledMetricId)->name,"L2_RQSTS.MISS", 13) == 0)
-    fprintf(stderr, "there is an L2_RQSTS.MISS\n");
-//#if 0
-  if (amd_ibs_flag /*&& mmap_data->store*/) {
-        //valid_sample_count++;
-        valid_sample_count1++;
-  }
-#endif
-#if 0
-  if (!IsValidAddress(data_addr, precisePC)) { 
-    goto ErrExit; // incorrect access type
-  }
-#endif
-#if 0
-  if (amd_ibs_flag /*&& mmap_data->store*/) {
-        //valid_sample_count++;
-        valid_sample_count2++;
-  }
-#endif
-//#endif
-  //fprintf(stderr, "no problem 1\n");
-#if 0
-  if (!amd_ibs_flag  && node == NULL) {
-    goto ErrExit; // incorrect CCT
-  }
-#endif
+  //fprintf(stderr, "OnSample is called\n");
+  void * data_addr = mmap_data->addr;
+    void * contextPC = hpcrun_context_pc(context);
+    void * precisePC = (mmap_data->header_misc & PERF_RECORD_MISC_EXACT_IP) ? mmap_data->ip : 0;
+    // Filert out address and PC (0 or kernel address will not pass)
+    fprintf(stderr, "OnSample is called 1, data_addr: %lx, precisePC: %lx, mmap_data->ip: %lx\n", data_addr, precisePC, mmap_data->ip);
+    if (!IsValidAddress(data_addr, precisePC)) {
+        goto ErrExit; // incorrect access type
+    }
 
-  if (node == NULL) {
-    goto ErrExit; // incorrect CCT
-  } 
+    // do not monitor NULL CCT node
+    fprintf(stderr, "OnSample is called 2\n");
+    if (node == NULL) {
+        goto ErrExit; // incorrect CCT
+    }
 
-  //fprintf(stderr, "no problem 2\n");
+   // fprintf(stderr, " numWatchpointsSet=%lu\n", wpStats.numWatchpointsSet);
 
-  uint64_t curTime = rdtsc();
-  int accessLen = 1;
-  AccessType accessType;
-#if 0
-  if(amd_ibs_flag) {
-	  //fprintf(stderr, "looking for precisePC: %lx in getEntryFromAccessTypeLengthCache\n", precisePC);
-	if(mmap_data->store)
-        	accessType = STORE;
-        else if (mmap_data->load)
-                accessType = LOAD;
-	accessLen = ibs_get_mem_width(mmap_data->mem_width);
-	//fprintf(stderr, "mem_width: %d, accessLen: %d\n", mmap_data->mem_width, accessLen); 		
-  }
-  else 
-#endif
-#if 0
-  if(false == get_mem_access_length_and_type(precisePC, (uint32_t*)(&accessLen), &accessType)){
-    //EMSG("Sampled a non load store at = %p\n", precisePC);
-    goto ErrExit; // incorrect access type
-  }
-#endif
-  //fprintf(stderr, "in OnSample, sampled address: %lx, disassembled address: %lx, mmap_data->addr_valid: %d\n", data_addr, addr1, mmap_data->addr_valid);
-  //
-  if(accessType == UNKNOWN || accessLen == 0){
-    //EMSG("Sampled sd.accessType = %d, accessLen=%d at precisePC = %p\n", accessType, accessLen, precisePC);
-    goto ErrExit; // incorrect access type
-  }
-  //fprintf(stderr, "no problem 4\n");
+   int accessLen;
+   AccessType accessType;
 
-  //fprintf(stderr, "A sample is handled in OnSample\n");
-  // if the context PC and precise PC are not in the same function, then the sample point is inaccurate.
-#if 0
-  bool isSamplePointAccurate;
-  FunctionType ft = is_same_function(contextPC, precisePC);
-  if (ft == SAME_FN) {
-    isSamplePointAccurate = true;
-  } else {
-    isSamplePointAccurate = false;
-  }
-#endif
+   fprintf(stderr, "OnSample is called 3\n");
 
-  //fprintf(stderr, "no problem 5\n");
+   if(false == get_mem_access_length_and_type(precisePC, (uint32_t*)(&accessLen), &accessType)){
+       //EMSG("Sampled a non load store at = %p\n", precisePC);
+       goto ErrExit; // incorrect access type
+   }
+
+   fprintf(stderr, "OnSample is called 4\n");
+
+   if(accessType == UNKNOWN || accessLen == 0){
+       //EMSG("Sampled sd.accessType = %d, accessLen=%d at precisePC = %p\n", accessType, accessLen, precisePC);
+       goto ErrExit; // incorrect access type
+   }
+
+    fprintf(stderr, "OnSample is called 5\n");
+    // if the context PC and precise PC are not in the same function, then the sample point is inaccurate.
+    bool isSamplePointAccurate;
+    FunctionType ft = is_same_function(contextPC, precisePC);
+    if (ft == SAME_FN) {
+        isSamplePointAccurate = true;
+    } else {
+        isSamplePointAccurate = false;
+    }
+    fprintf(stderr, "OnSample is called 6\n"); 
 #if 0
   switch (theWPConfig->id) {
     case WP_DEADSPY:{
