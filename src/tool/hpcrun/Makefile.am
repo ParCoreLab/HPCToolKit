@@ -442,7 +442,9 @@ MY_BASE_FILES +=  \
 	sample-sources/perf/perf_event_open.c     \
 	sample-sources/perf/perf-util.c     \
 	sample-sources/perf/perf_mmap.c     \
-	sample-sources/perf/perf_skid.c
+	sample-sources/perf/perf_skid.c \
+	sample-sources/watchpoint_support.c \
+	sample-sources/watchpoint_clients.c 
 
 MY_CPP_DEFINES  += -DHPCRUN_SS_LINUX_PERF
 

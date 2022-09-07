@@ -160,7 +160,9 @@ host_triplet = @host@
 @OPT_ENABLE_PERF_EVENT_TRUE@	sample-sources/perf/perf_event_open.c     \
 @OPT_ENABLE_PERF_EVENT_TRUE@	sample-sources/perf/perf-util.c     \
 @OPT_ENABLE_PERF_EVENT_TRUE@	sample-sources/perf/perf_mmap.c     \
-@OPT_ENABLE_PERF_EVENT_TRUE@	sample-sources/perf/perf_skid.c
+@OPT_ENABLE_PERF_EVENT_TRUE@	sample-sources/perf/perf_skid.c	    \
+@OPT_ENABLE_PERF_EVENT_TRUE@	sample-sources/watchpoint_support.c \
+@OPT_ENABLE_PERF_EVENT_TRUE@	sample-sources/watchpoint_clients.c
 
 @OPT_ENABLE_PERF_EVENT_TRUE@am__append_11 = -DHPCRUN_SS_LINUX_PERF
 @OPT_ENABLE_PERF_EVENT_TRUE@@OPT_PERFMON_TRUE@am__append_12 = sample-sources/perf/perfmon-util.c
@@ -521,6 +523,8 @@ am__libhpcrun_la_SOURCES_DIST = utilities/first_func.c main.h main.c \
 	sample-sources/perf/perf-util.c \
 	sample-sources/perf/perf_mmap.c \
 	sample-sources/perf/perf_skid.c \
+	sample-sources/watchpoint_support.c \
+	sample-sources/watchpoint_clients.c \
 	sample-sources/perf/perfmon-util.c \
 	sample-sources/perf/perfmon-util-dummy.c \
 	sample-sources/perf/kernel_blocking.c \
@@ -594,7 +598,9 @@ am__libhpcrun_la_SOURCES_DIST = utilities/first_func.c main.h main.c \
 @OPT_ENABLE_PERF_EVENT_TRUE@	sample-sources/perf/libhpcrun_la-perf_event_open.lo \
 @OPT_ENABLE_PERF_EVENT_TRUE@	sample-sources/perf/libhpcrun_la-perf-util.lo \
 @OPT_ENABLE_PERF_EVENT_TRUE@	sample-sources/perf/libhpcrun_la-perf_mmap.lo \
-@OPT_ENABLE_PERF_EVENT_TRUE@	sample-sources/perf/libhpcrun_la-perf_skid.lo
+@OPT_ENABLE_PERF_EVENT_TRUE@	sample-sources/perf/libhpcrun_la-perf_skid.lo \
+@OPT_ENABLE_PERF_EVENT_TRUE@	sample-sources/libhpcrun_la-watchpoint_support.lo \
+@OPT_ENABLE_PERF_EVENT_TRUE@	sample-sources/libhpcrun_la-watchpoint_clients.lo
 @OPT_ENABLE_PERF_EVENT_TRUE@@OPT_PERFMON_TRUE@am__objects_10 = sample-sources/perf/libhpcrun_la-perfmon-util.lo
 @OPT_ENABLE_PERF_EVENT_TRUE@@OPT_PERFMON_FALSE@am__objects_11 = sample-sources/perf/libhpcrun_la-perfmon-util-dummy.lo
 @OPT_ENABLE_KERNEL_4_3_TRUE@@OPT_ENABLE_PERF_EVENT_TRUE@am__objects_12 = sample-sources/perf/libhpcrun_la-kernel_blocking.lo
@@ -1021,6 +1027,8 @@ am__libhpcrun_o_SOURCES_DIST = utilities/first_func.c main.h main.c \
 	sample-sources/perf/perf-util.c \
 	sample-sources/perf/perf_mmap.c \
 	sample-sources/perf/perf_skid.c \
+	sample-sources/watchpoint_support.c \
+	sample-sources/watchpoint_clients.c \
 	sample-sources/perf/perfmon-util.c \
 	sample-sources/perf/perfmon-util-dummy.c \
 	sample-sources/perf/kernel_blocking.c \
@@ -1076,7 +1084,9 @@ am__libhpcrun_o_SOURCES_DIST = utilities/first_func.c main.h main.c \
 @OPT_ENABLE_PERF_EVENT_TRUE@	sample-sources/perf/libhpcrun_o-perf_event_open.$(OBJEXT) \
 @OPT_ENABLE_PERF_EVENT_TRUE@	sample-sources/perf/libhpcrun_o-perf-util.$(OBJEXT) \
 @OPT_ENABLE_PERF_EVENT_TRUE@	sample-sources/perf/libhpcrun_o-perf_mmap.$(OBJEXT) \
-@OPT_ENABLE_PERF_EVENT_TRUE@	sample-sources/perf/libhpcrun_o-perf_skid.$(OBJEXT)
+@OPT_ENABLE_PERF_EVENT_TRUE@	sample-sources/perf/libhpcrun_o-perf_skid.$(OBJEXT) \
+@OPT_ENABLE_PERF_EVENT_TRUE@	sample-sources/libhpcrun_o-watchpoint_support.$(OBJEXT) \
+@OPT_ENABLE_PERF_EVENT_TRUE@	sample-sources/libhpcrun_o-watchpoint_clients.$(OBJEXT)
 @OPT_ENABLE_PERF_EVENT_TRUE@@OPT_PERFMON_TRUE@am__objects_53 = sample-sources/perf/libhpcrun_o-perfmon-util.$(OBJEXT)
 @OPT_ENABLE_PERF_EVENT_TRUE@@OPT_PERFMON_FALSE@am__objects_54 = sample-sources/perf/libhpcrun_o-perfmon-util-dummy.$(OBJEXT)
 @OPT_ENABLE_KERNEL_4_3_TRUE@@OPT_ENABLE_PERF_EVENT_TRUE@am__objects_55 = sample-sources/perf/libhpcrun_o-kernel_blocking.$(OBJEXT)
@@ -2876,6 +2886,12 @@ sample-sources/perf/libhpcrun_la-perf_mmap.lo:  \
 sample-sources/perf/libhpcrun_la-perf_skid.lo:  \
 	sample-sources/perf/$(am__dirstamp) \
 	sample-sources/perf/$(DEPDIR)/$(am__dirstamp)
+sample-sources/libhpcrun_la-watchpoint_support.lo:  \
+        sample-sources/$(am__dirstamp) \
+        sample-sources/$(DEPDIR)/$(am__dirstamp)
+sample-sources/libhpcrun_la-watchpoint_clients.lo:  \
+	sample-sources/$(am__dirstamp) \
+	sample-sources/$(DEPDIR)/$(am__dirstamp)
 sample-sources/perf/libhpcrun_la-perfmon-util.lo:  \
 	sample-sources/perf/$(am__dirstamp) \
 	sample-sources/perf/$(DEPDIR)/$(am__dirstamp)
@@ -3549,6 +3565,12 @@ sample-sources/perf/libhpcrun_o-perf_mmap.$(OBJEXT):  \
 sample-sources/perf/libhpcrun_o-perf_skid.$(OBJEXT):  \
 	sample-sources/perf/$(am__dirstamp) \
 	sample-sources/perf/$(DEPDIR)/$(am__dirstamp)
+sample-sources/libhpcrun_o-watchpoint_support.$(OBJEXT):  \
+	sample-sources/$(am__dirstamp) \
+	sample-sources/$(DEPDIR)/$(am__dirstamp)
+sample-sources/libhpcrun_o-watchpoint_clients.$(OBJEXT):  \
+	sample-sources/$(am__dirstamp) \
+	sample-sources/$(DEPDIR)/$(am__dirstamp)
 sample-sources/perf/libhpcrun_o-perfmon-util.$(OBJEXT):  \
 	sample-sources/perf/$(am__dirstamp) \
 	sample-sources/perf/$(DEPDIR)/$(am__dirstamp)
@@ -4173,6 +4195,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@sample-sources/$(DEPDIR)/libhpcrun_la-sample-filters.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@sample-sources/$(DEPDIR)/libhpcrun_la-sync.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@sample-sources/$(DEPDIR)/libhpcrun_la-upc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@sample-sources/$(DEPDIR)/libhpcrun_la-watchpoint_clients.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@sample-sources/$(DEPDIR)/libhpcrun_la-watchpoint_support.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@sample-sources/$(DEPDIR)/libhpcrun_memleak_la-memleak-overrides.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@sample-sources/$(DEPDIR)/libhpcrun_memleak_wrap_a-memleak-overrides.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@sample-sources/$(DEPDIR)/libhpcrun_o-common.Po@am__quote@
@@ -4196,6 +4220,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@sample-sources/$(DEPDIR)/libhpcrun_o-sample-filters.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@sample-sources/$(DEPDIR)/libhpcrun_o-sync.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@sample-sources/$(DEPDIR)/libhpcrun_o-upc.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@sample-sources/$(DEPDIR)/libhpcrun_o-watchpoint_clients.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@sample-sources/$(DEPDIR)/libhpcrun_o-watchpoint_support.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@sample-sources/$(DEPDIR)/libhpcrun_pthread_la-pthread-blame-overrides.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@sample-sources/$(DEPDIR)/libhpcrun_pthread_wrap_a-pthread-blame-overrides.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@sample-sources/blame-shift/$(DEPDIR)/libhpcrun_la-blame-map.Plo@am__quote@
@@ -5507,6 +5533,20 @@ sample-sources/perf/libhpcrun_la-perf_skid.lo: sample-sources/perf/perf_skid.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='sample-sources/perf/perf_skid.c' object='sample-sources/perf/libhpcrun_la-perf_skid.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhpcrun_la_CPPFLAGS) $(CPPFLAGS) $(libhpcrun_la_CFLAGS) $(CFLAGS) -c -o sample-sources/perf/libhpcrun_la-perf_skid.lo `test -f 'sample-sources/perf/perf_skid.c' || echo '$(srcdir)/'`sample-sources/perf/perf_skid.c
+
+sample-sources/libhpcrun_la-watchpoint_support.lo: sample-sources/watchpoint_support.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhpcrun_la_CPPFLAGS) $(CPPFLAGS) $(libhpcrun_la_CFLAGS) $(CFLAGS) -MT sample-sources/libhpcrun_la-watchpoint_support.lo -MD -MP -MF sample-sources/$(DEPDIR)/libhpcrun_la-watchpoint_support.Tpo -c -o sample-sources/libhpcrun_la-watchpoint_support.lo `test -f 'sample-sources/watchpoint_support.c' || echo '$(srcdir)/'`sample-sources/watchpoint_support.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) sample-sources/$(DEPDIR)/libhpcrun_la-watchpoint_support.Tpo sample-sources/$(DEPDIR)/libhpcrun_la-watchpoint_support.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='sample-sources/watchpoint_support.c' object='sample-sources/libhpcrun_la-watchpoint_support.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhpcrun_la_CPPFLAGS) $(CPPFLAGS) $(libhpcrun_la_CFLAGS) $(CFLAGS) -c -o sample-sources/libhpcrun_la-watchpoint_support.lo `test -f 'sample-sources/watchpoint_support.c' || echo '$(srcdir)/'`sample-sources/watchpoint_support.c
+
+sample-sources/libhpcrun_la-watchpoint_clients.lo: sample-sources/watchpoint_clients.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhpcrun_la_CPPFLAGS) $(CPPFLAGS) $(libhpcrun_la_CFLAGS) $(CFLAGS) -MT sample-sources/libhpcrun_la-watchpoint_clients.lo -MD -MP -MF sample-sources/$(DEPDIR)/libhpcrun_la-watchpoint_clients.Tpo -c -o sample-sources/libhpcrun_la-watchpoint_clients.lo `test -f 'sample-sources/watchpoint_clients.c' || echo '$(srcdir)/'`sample-sources/watchpoint_clients.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) sample-sources/$(DEPDIR)/libhpcrun_la-watchpoint_clients.Tpo sample-sources/$(DEPDIR)/libhpcrun_la-watchpoint_clients.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='sample-sources/watchpoint_clients.c' object='sample-sources/libhpcrun_la-watchpoint_clients.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhpcrun_la_CPPFLAGS) $(CPPFLAGS) $(libhpcrun_la_CFLAGS) $(CFLAGS) -c -o sample-sources/libhpcrun_la-watchpoint_clients.lo `test -f 'sample-sources/watchpoint_clients.c' || echo '$(srcdir)/'`sample-sources/watchpoint_clients.c
 
 sample-sources/perf/libhpcrun_la-perfmon-util.lo: sample-sources/perf/perfmon-util.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhpcrun_la_CPPFLAGS) $(CPPFLAGS) $(libhpcrun_la_CFLAGS) $(CFLAGS) -MT sample-sources/perf/libhpcrun_la-perfmon-util.lo -MD -MP -MF sample-sources/perf/$(DEPDIR)/libhpcrun_la-perfmon-util.Tpo -c -o sample-sources/perf/libhpcrun_la-perfmon-util.lo `test -f 'sample-sources/perf/perfmon-util.c' || echo '$(srcdir)/'`sample-sources/perf/perfmon-util.c
@@ -8111,6 +8151,35 @@ sample-sources/perf/libhpcrun_o-perf_skid.obj: sample-sources/perf/perf_skid.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='sample-sources/perf/perf_skid.c' object='sample-sources/perf/libhpcrun_o-perf_skid.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhpcrun_o_CPPFLAGS) $(CPPFLAGS) $(libhpcrun_o_CFLAGS) $(CFLAGS) -c -o sample-sources/perf/libhpcrun_o-perf_skid.obj `if test -f 'sample-sources/perf/perf_skid.c'; then $(CYGPATH_W) 'sample-sources/perf/perf_skid.c'; else $(CYGPATH_W) '$(srcdir)/sample-sources/perf/perf_skid.c'; fi`
+
+sample-sources/libhpcrun_o-watchpoint_support.o:	sample-sources/watchpoint_support.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhpcrun_o_CPPFLAGS) $(CPPFLAGS) $(libhpcrun_o_CFLAGS) $(CFLAGS) -MT sample-sources/libhpcrun_o-watchpoint_support.o -MD -MP -MF sample-sources/$(DEPDIR)/libhpcrun_o-watchpoint_support.Tpo -c -o sample-sources/libhpcrun_o-watchpoint_support.o `test -f 'sample-sources/watchpoint_support.c' || echo '$(srcdir)/'`sample-sources/watchpoint_support.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) sample-sources/$(DEPDIR)/libhpcrun_o-watchpoint_support.Tpo sample-sources/$(DEPDIR)/libhpcrun_o-watchpoint_support.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='sample-sources/watchpoint_support.c' object='sample-sources/libhpcrun_o-watchpoint_support.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhpcrun_o_CPPFLAGS) $(CPPFLAGS) $(libhpcrun_o_CFLAGS) $(CFLAGS) -c -o sample-sources/libhpcrun_o-watchpoint_support.o `test -f 'sample-sources/watchpoint_support.c' || echo '$(srcdir)/'`sample-sources/watchpoint_support.c
+
+sample-sources/libhpcrun_o-watchpoint_support.obj:	sample-sources/watchpoint_support.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhpcrun_o_CPPFLAGS) $(CPPFLAGS) $(libhpcrun_o_CFLAGS) $(CFLAGS) -MT sample-sources/libhpcrun_o-watchpoint_support.obj -MD -MP -MF sample-sources/$(DEPDIR)/libhpcrun_o-watchpoint_support.Tpo -c -o sample-sources/libhpcrun_o-watchpoint_support.obj `if test -f 'sample-sources/watchpoint_support.c'; then $(CYGPATH_W) 'sample-sources/watchpoint_support.c'; else $(CYGPATH_W) '$(srcdir)/sample-sources/watchpoint_support.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) sample-sources/$(DEPDIR)/libhpcrun_o-watchpoint_support.Tpo sample-sources/$(DEPDIR)/libhpcrun_o-watchpoint_support.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='sample-sources/watchpoint_support.c' object='sample-sources/libhpcrun_o-watchpoint_support.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhpcrun_o_CPPFLAGS) $(CPPFLAGS) $(libhpcrun_o_CFLAGS) $(CFLAGS) -c -o sample-sources/libhpcrun_o-watchpoint_support.obj `if test -f 'sample-sources/watchpoint_support.c'; then $(CYGPATH_W) 'sample-sources/watchpoint_support.c'; else $(CYGPATH_W) '$(srcdir)/sample-sources/watchpoint_support.c'; fi`
+
+sample-sources/libhpcrun_o-watchpoint_clients.o:	sample-sources/watchpoint_clients.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhpcrun_o_CPPFLAGS) $(CPPFLAGS) $(libhpcrun_o_CFLAGS) $(CFLAGS) -MT sample-sources/libhpcrun_o-watchpoint_clients.o -MD -MP -MF sample-sources/$(DEPDIR)/libhpcrun_o-watchpoint_clients.Tpo -c -o sample-sources/libhpcrun_o-watchpoint_clients.o `test -f 'sample-sources/watchpoint_clients.c' || echo '$(srcdir)/'`sample-sources/watchpoint_clients.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) sample-sources/$(DEPDIR)/libhpcrun_o-watchpoint_clients.Tpo sample-sources/$(DEPDIR)/libhpcrun_o-watchpoint_clients.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='sample-sources/watchpoint_clients.c' object='sample-sources/libhpcrun_o-watchpoint_clients.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhpcrun_o_CPPFLAGS) $(CPPFLAGS) $(libhpcrun_o_CFLAGS) $(CFLAGS) -c -o sample-sources/libhpcrun_o-watchpoint_clients.o `test -f 'sample-sources/watchpoint_clients.c' || echo '$(srcdir)/'`sample-sources/watchpoint_clients.c
+
+sample-sources/libhpcrun_o-watchpoint_clients.obj:	sample-sources/watchpoint_clients.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhpcrun_o_CPPFLAGS) $(CPPFLAGS) $(libhpcrun_o_CFLAGS) $(CFLAGS) -MT sample-sources/libhpcrun_o-watchpoint_clients.obj -MD -MP -MF sample-sources/$(DEPDIR)/libhpcrun_o-watchpoint_clients.Tpo -c -o sample-sources/libhpcrun_o-watchpoint_clients.obj `if test -f 'sample-sources/watchpoint_clients.c'; then $(CYGPATH_W) 'sample-sources/watchpoint_clients.c'; else $(CYGPATH_W) '$(srcdir)/sample-sources/watchpoint_clients.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) sample-sources/$(DEPDIR)/libhpcrun_o-watchpoint_clients.Tpo sample-sources/$(DEPDIR)/libhpcrun_o-watchpoint_clients.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='sample-sources/watchpoint_clients.c' object='sample-sources/libhpcrun_o-watchpoint_clients.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhpcrun_o_CPPFLAGS) $(CPPFLAGS) $(libhpcrun_o_CFLAGS) $(CFLAGS) -c -o sample-sources/libhpcrun_o-watchpoint_clients.obj `if test -f 'sample-sources/watchpoint_clients.c'; then $(CYGPATH_W) 'sample-sources/watchpoint_clients.c'; else $(CYGPATH_W) '$(srcdir)/sample-sources/watchpoint_clients.c'; fi`
+
 
 sample-sources/perf/libhpcrun_o-perfmon-util.o: sample-sources/perf/perfmon-util.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhpcrun_o_CPPFLAGS) $(CPPFLAGS) $(libhpcrun_o_CFLAGS) $(CFLAGS) -MT sample-sources/perf/libhpcrun_o-perfmon-util.o -MD -MP -MF sample-sources/perf/$(DEPDIR)/libhpcrun_o-perfmon-util.Tpo -c -o sample-sources/perf/libhpcrun_o-perfmon-util.o `test -f 'sample-sources/perf/perfmon-util.c' || echo '$(srcdir)/'`sample-sources/perf/perfmon-util.c

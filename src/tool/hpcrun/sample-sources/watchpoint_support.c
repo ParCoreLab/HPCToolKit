@@ -59,10 +59,11 @@
 #include <unwind/common/unwind.h>
 
 #include "watchpoint_support.h"
-#include <unwind/x86-family/x86-misc.h>
+//#include <unwind/x86-family/x86-misc.h>
 #if ADAMANT_USED
 #include <adm_init_fini.h>
 #endif
+#if 0
 #include "matrix.h"
 //#include "amd_support.h"
 
@@ -2334,4 +2335,5 @@ int main() {
   }
   return 0;
 }
+#endif
 #endif

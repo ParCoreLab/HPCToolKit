@@ -573,6 +573,13 @@ record_sample(event_thread_t *current, perf_mmap_data_t *mmap_data,
   blame_shift_apply(current->event->hpcrun_metric_id, sv->sample_node, 
                     counter /*metricIncr*/);
 
+  //if(WatchpointClientActive()){
+	OnSample(mmap_data, 
+				/*hpcrun_context_pc(context)*/ context,
+                                sv->sample_node,
+                                current->event->hpcrun_metric_id);
+  //} 
+
   return sv;
 }
 
