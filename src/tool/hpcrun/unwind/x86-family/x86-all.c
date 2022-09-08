@@ -68,4 +68,4 @@
 #include "x86-process-inst.c"
 #include "x86-push.c"
 #include "x86-return.c"
-
+#include "x86-misc.c"

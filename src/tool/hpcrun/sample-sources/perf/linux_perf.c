@@ -389,11 +389,15 @@ perf_thread_init(event_info_t *event, event_thread_t *et)
   et->event = event;
   // ask sys to "create" the event
   // it returns -1 if it fails.
+  event->attr.wakeup_events = 1;
   et->fd = perf_event_open(&event->attr,
             THREAD_SELF, CPU_ANY, GROUP_FD, PERF_FLAGS);
   TMSG(LINUX_PERF, "event fd: %d, skid: %d, code: %d, type: %d, period: %d, freq: %d",
         et->fd, event->attr.precise_ip, event->attr.config,
         event->attr.type, event->attr.sample_freq, event->attr.freq);
+  fprintf(stderr, "event fd: %d, precise_ip: %d, code: %d, type: %d, period: %d, freq: %d, wakeup_events: %d\n",
+        et->fd, event->attr.precise_ip, event->attr.config,
+        event->attr.type, event->attr.sample_freq, event->attr.freq, event->attr.wakeup_events); 
 
   // check if perf_event_open is successful
   if (et->fd < 0) {
@@ -1184,7 +1188,7 @@ perf_event_handler(
 
     // reading info from mmapped buffer
     more_data = read_perf_buffer(current->mmap, attr, &mmap_data);
-
+    fprintf(stderr, "mmap_data.ip: %lx, mmap_data.addr: %lx\n", mmap_data.ip, mmap_data.addr);
     sample_val_t sv;
     memset(&sv, 0, sizeof(sample_val_t));
 

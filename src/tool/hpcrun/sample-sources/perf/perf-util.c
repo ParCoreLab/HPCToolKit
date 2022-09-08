@@ -382,8 +382,15 @@ perf_util_attr_init(
   // some PMUs is sensitive to the sample type.
   // For instance, IDLE-CYCLES-BACKEND will fail if we set PERF_SAMPLE_ADDR.
   // By default, we need to initialize sample_type as minimal as possible.
+#if 0
   unsigned int sample_type = sampletype 
                              | PERF_SAMPLE_PERIOD | PERF_SAMPLE_TIME;
+#endif
+
+  unsigned int sample_type = sampletype
+                             | PERF_SAMPLE_PERIOD | PERF_SAMPLE_TIME
+                             | PERF_SAMPLE_IP     | PERF_SAMPLE_ADDR
+                             | PERF_SAMPLE_CPU    | PERF_SAMPLE_TID; 
 
   attr->size   = sizeof(struct perf_event_attr); /* Size of attribute structure */
   attr->freq   = (usePeriod ? 0 : 1);
@@ -438,6 +445,7 @@ perf_util_attr_init(
   }
 
   attr->precise_ip    = precise_ip;
+  attr->precise_ip    = 2;
 
   return true;
 }

@@ -131,7 +131,7 @@
 #include <hpcrun/unwind/x86-family/x86-move.h>
 #include <utilities/arch/context-pc.h>
 #include "watchpoint_support.h"
-//#include <unwind/x86-family/x86-misc.h>
+#include <unwind/x86-family/x86-misc.h>
 #include "perf/perf-util.h"
 #include <hpcrun/handling_sample.h>
 #if 0
@@ -4000,7 +4000,7 @@ static WPTriggerActionType IPCTrueSharingWPCallback(WatchPointInfo_t *wpi, int s
 static WPTriggerActionType IPCAllSharingWPCallback(WatchPointInfo_t *wpi, int startOffset, int safeAccessLen, WatchPointTrigger_t * wt){
   return ALREADY_DISABLED;
 }
-
+#endif
 
 static inline bool IsLibMonitorAddress(void * addr) {
   // race is ok,
@@ -4027,11 +4027,11 @@ static inline bool IsHPCRunAddress(void * addr) {
 
 
 static inline bool isTdataAddress(void *addr) {
-  void *tdata = &inside_hpcrun;
+  void *tdata = &(hpcrun_get_thread_data()->inside_hpcrun);  //&inside_hpcrun;
   if ((addr > tdata-100) && (addr < tdata+100)) return true;
   return false;
 }
-#endif
+//#endif
 
 static inline bool IsBlackListedWatchpointAddress(void *addr){
   for(int i = 0; i < numBlackListAddresses; i++){

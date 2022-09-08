@@ -59,11 +59,10 @@
 #include <unwind/common/unwind.h>
 
 #include "watchpoint_support.h"
-//#include <unwind/x86-family/x86-misc.h>
+#include <unwind/x86-family/x86-misc.h>
 #if ADAMANT_USED
 #include <adm_init_fini.h>
 #endif
-#if 0
 #include "matrix.h"
 //#include "amd_support.h"
 
@@ -75,11 +74,11 @@ __thread int wait_threshold = 0;
 extern __thread sample_count;
 extern int used_wp_count;
 
-extern MonitoredNodeStruct_t MonitoredNode;
+//extern MonitoredNodeStruct_t MonitoredNode;
 
 extern int profiling_mode;
 
-extern bool amd_ibs_flag;
+//extern bool amd_ibs_flag;
 
 #define REUSE_HISTO 1
 //#define MAX_WP_SLOTS (5)
@@ -123,7 +122,7 @@ extern bool amd_ibs_flag;
 
 WPConfig_t wpConfig;
 
-extern int event_type;
+//extern int event_type;
 int global_thread_count;
 int dynamic_global_thread_count;
 
@@ -445,7 +444,7 @@ __attribute__((constructor))
     for (int j = 0 ; j < i; j ++) {
       CHECK(close(wpHandles[j]));
     }
-    int custom_wp_size = atoi(getenv(WATCHPOINT_SIZE));
+    int custom_wp_size = 4;//atoi(getenv(WATCHPOINT_SIZE));
     if(custom_wp_size < i)
       wpConfig.maxWP = custom_wp_size;
     else
@@ -549,11 +548,13 @@ __attribute__((constructor))
       globalStoreReuseWPs.table[i].counter = 0;
     }
     globalReuseWPs.counter = 0;
+#if 0
     MonitoredNode.timestamp = 0;
     MonitoredNode.trap_timestamp = 0;
     MonitoredNode.self_trap = false;
     MonitoredNode.counter = 0;
     MonitoredNode.tid = -1;
+#endif
   }
 
 void RedSpyWPConfigOverride(void *v){
@@ -687,7 +688,7 @@ static void CreateWatchPoint(WatchPointInfo_t * wpi, SampleData_t * sampleData, 
     // modification
     //fprintf(stderr, "watchpoint is created with FAST_BP_IOC_FLAG before fileHandle assert\n");
     assert(wpi->fileHandle != -1);
-    assert(wpi->mmapBuffer != 0 || amd_ibs_flag);
+    assert(wpi->mmapBuffer != 0 /*|| amd_ibs_flag*/);
     //DisableWatchpoint(wpi);
     //fprintf(stderr, "watchpoint is created with FAST_BP_IOC_FLAG\n");
     //create_wp_count++;
@@ -982,6 +983,7 @@ void WatchpointThreadTerminate(){
   int me = TD_GET(core_profile_trace_data.id);
   dynamic_global_thread_count--;
   ThreadData_t threadData;
+#if 0
   if(event_type == WP_REUSETRACKER || event_type == WP_AMD_COMM) {
 
     // before
@@ -1036,6 +1038,7 @@ void WatchpointThreadTerminate(){
     threadDataTable.hashTable[me].fs_reg_val = (void*)-1;
     threadDataTable.hashTable[me].gs_reg_val = (void*)-1;
   } else {
+#endif
 
     for (int i = 0; i < wpConfig.maxWP; i++) {
       if(tData.watchPointArray[i].fileHandle != -1) {
@@ -1049,7 +1052,7 @@ void WatchpointThreadTerminate(){
     }
     tData.fs_reg_val = (void*)-1;
     tData.gs_reg_val = (void*)-1;
-  }
+  //}
   //fprintf(stderr, "tData.numWatchpointTriggers: %ld\n", tData.numWatchpointTriggers); 
   //fprintf(stderr, "tData.numActiveWatchpointTriggers: %ld\n", tData.numActiveWatchpointTriggers);
   hpcrun_stats_num_watchpoints_triggered_inc(tData.numWatchpointTriggers);
@@ -1746,7 +1749,7 @@ static int OnWatchPoint(int signum, siginfo_t *info, void *context){
   }
   //fprintf(stderr, "OnWatchPoint is executed 3\n");
   wp_count1++;
-
+#if 0
   if(event_type == WP_REUSETRACKER || event_type == WP_AMD_REUSETRACKER) {
     tData.numWatchpointTriggers++;
 
@@ -1876,7 +1879,7 @@ static int OnWatchPoint(int signum, siginfo_t *info, void *context){
   }
 }
 } else {
-
+#endif
   // start from here
 
   //linux_perf_events_pause();
@@ -1995,7 +1998,7 @@ static int OnWatchPoint(int signum, siginfo_t *info, void *context){
     default: // Retain the state
                     break;
   }
-}
+//}
 //    hpcrun_all_sources_start();
 //linux_perf_events_resume();
 hpcrun_safe_exit();
@@ -2335,5 +2338,4 @@ int main() {
   }
   return 0;
 }
-#endif
 #endif
