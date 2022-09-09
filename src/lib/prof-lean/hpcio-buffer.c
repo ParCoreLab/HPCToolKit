@@ -98,6 +98,7 @@
 // type declarations
 //***************************************************************************
 
+#if 0
 typedef struct hpcio_outbuf_s {
   struct hpcio_outbuf_s *next;
   uint32_t magic;
@@ -109,7 +110,7 @@ typedef struct hpcio_outbuf_s {
   char use_lock;
   spinlock_t lock;
 } hpcio_outbuf_t;
-
+#endif
 
 
 //***************************************************************************
@@ -246,6 +247,33 @@ hpcio_outbuf_attach
   spinlock_unlock(&outbuf->lock);
 
   *outbuf_ptr = outbuf;
+
+  return HPCFMT_OK;
+}
+
+int
+hpcio_outbuf_attach_shorter(
+  hpcio_outbuf_t *outbuf, 
+  int fd,
+  void *buf_start, 
+  size_t buf_size, 
+  int flags
+)
+{
+  // Attach fills in the outbuf struct, so there is no magic number
+  // and locks don't exist.
+  if (outbuf == NULL || fd < 0 || buf_start == NULL || buf_size == 0) {
+    return HPCFMT_ERR;
+  }
+
+  outbuf->magic = HPCIO_OUTBUF_MAGIC;
+  outbuf->buf_start = buf_start;
+  outbuf->buf_size = buf_size;
+  outbuf->in_use = 0;
+  outbuf->fd = fd;
+  outbuf->flags = flags;
+  outbuf->use_lock = (flags & HPCIO_OUTBUF_LOCKED);
+  spinlock_unlock(&outbuf->lock);
 
   return HPCFMT_OK;
 }

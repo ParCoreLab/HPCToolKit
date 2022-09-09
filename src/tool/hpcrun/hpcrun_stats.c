@@ -57,7 +57,12 @@
 #include <lib/prof-lean/stdatomic.h>
 #include <lib/prof-lean/hpcrun-fmt.h>
 #include <unwind/common/validate_return_addr.h>
-
+#if ADAMANT_USED
+#include <adm_init_fini.h>
+#endif
+#include "matrix.h"
+#include "env.h"
+#include "myposix.h"
 
 //***************************************************************************
 // local variables
@@ -85,13 +90,74 @@ static atomic_long acc_trace_records_dropped = ATOMIC_VAR_INIT(0);
 static atomic_long acc_samples = ATOMIC_VAR_INIT(0);
 static atomic_long acc_samples_dropped = ATOMIC_VAR_INIT(0);
 
+static atomic_long num_samples_imprecise = ATOMIC_VAR_INIT(0);
+static atomic_long num_watchpoints_triggered = ATOMIC_VAR_INIT(0);
+static atomic_long num_watchpoints_set = ATOMIC_VAR_INIT(0);
+static atomic_long num_watchpoints_dropped = ATOMIC_VAR_INIT(0);
+static atomic_long num_watchpoints_imprecise = ATOMIC_VAR_INIT(0);
+static atomic_long num_watchpoints_imprecise_address = ATOMIC_VAR_INIT(0);
+static atomic_long num_watchpoints_imprecise_address_8_byte = ATOMIC_VAR_INIT(0);
+static atomic_long num_sample_triggering_watchpoints= ATOMIC_VAR_INIT(0);
+static atomic_long num_insane_ip= ATOMIC_VAR_INIT(0);
+
+static atomic_long num_writtenBytes = ATOMIC_VAR_INIT(0);
+static atomic_long num_usedBytes = ATOMIC_VAR_INIT(0);
+static atomic_long num_deadBytes = ATOMIC_VAR_INIT(0);
+
+static atomic_long num_newBytes = ATOMIC_VAR_INIT(0);
+static atomic_long num_oldBytes = ATOMIC_VAR_INIT(0);
+static atomic_long num_oldAppxBytes = ATOMIC_VAR_INIT(0);
+static atomic_long num_loadedBytes = ATOMIC_VAR_INIT(0);
+
+static atomic_long num_accessedIns = ATOMIC_VAR_INIT(0);
+static atomic_long num_trueWWIns = ATOMIC_VAR_INIT(0);
+static atomic_long num_trueRWIns = ATOMIC_VAR_INIT(0);
+static atomic_long num_trueWRIns = ATOMIC_VAR_INIT(0);
+static atomic_long num_falseWWIns = ATOMIC_VAR_INIT(0);
+static atomic_long num_falseRWIns = ATOMIC_VAR_INIT(0);
+static atomic_long num_falseWRIns = ATOMIC_VAR_INIT(0);
+
+static atomic_long num_reuseSpatial = ATOMIC_VAR_INIT(0);
+static atomic_long num_reuseTemporal =  ATOMIC_VAR_INIT(0);
+static atomic_long num_reuse = ATOMIC_VAR_INIT(0);
+static atomic_long num_latency = ATOMIC_VAR_INIT(0);
+static atomic_long num_corrected_reuse_distance = ATOMIC_VAR_INIT(0);
+
+extern void dump_profiling_metrics();
+
+extern char output_directory[PATH_MAX];
+
 //***************************************************************************
 // interface operations
 //***************************************************************************
 
+long load_and_store_all_load;
+
+long load_and_store_all_store;
+
+long store_all_store;
+
 void
 hpcrun_stats_reinit(void)
 {
+  fs_matrix_size =  0;
+  ts_matrix_size =  0;
+  as_matrix_size =  0;
+  as_core_matrix_size = 0;
+  HASHTABLESIZE = atoi(getenv(BULLETIN_BOARD_SIZE));
+#if ADAMANT_USED
+  if(getenv(HPCRUN_OBJECT_LEVEL)) {
+        //adm_initialize();
+        fprintf(stderr, "object level is activated\n");
+        //OBJECT_THRESHOLD = atoi(getenv(OBJECT_SIZE_THRESHOLD));
+  }
+#endif
+  //fprintf(stderr, "bulletin board size is %d\n", HASHTABLESIZE);
+  //fprintf(stderr, "object threshold is %d\n", OBJECT_THRESHOLD);
+  //fprintf(stderr, "watchpoint size is %d\n", atoi(getenv(WATCHPOINT_SIZE)));
+  for(int i = 0; i < HASHTABLESIZE; i++) {
+    bulletinBoard.hashTable[i].cacheLineBaseAddress = -1;
+  } 
   atomic_store_explicit(&num_samples_total, 0, memory_order_relaxed);
   atomic_store_explicit(&num_samples_attempted, 0, memory_order_relaxed);
   atomic_store_explicit(&num_samples_blocked_async, 0, memory_order_relaxed);
@@ -441,6 +507,14 @@ hpcrun_stats_num_samples_yielded(void)
 void
 hpcrun_stats_print_summary(void)
 {
+  int object_flag = 0;
+#if ADAMANT_USED
+  if(getenv(HPCRUN_OBJECT_LEVEL)) {
+    object_flag = 1;
+    adm_finalize(object_flag, output_directory, hpcrun_files_executable_name(), getpid() );
+  }
+#endif
+  dump_profiling_metrics(); 
   long cpu_blocked_async  = atomic_load_explicit(&num_samples_blocked_async, memory_order_relaxed);
   long cpu_blocked_dlopen = atomic_load_explicit(&num_samples_blocked_dlopen, memory_order_relaxed);
   long cpu_blocked = cpu_blocked_async + cpu_blocked_dlopen;
@@ -467,6 +541,12 @@ hpcrun_stats_print_summary(void)
   long acc_trace_dropped = atomic_load_explicit(&acc_trace_records_dropped, memory_order_relaxed);
 
   hpcrun_memory_summary();
+
+  AMSG("WATCHPOINT ANOMALIES: samples:%.2e, SM_imprecise:%.2e, WP_Set:%.2e, WP_triggered:%.2e, WP_SampleTriggering:%.2e, WP_ImpreciseIP:%.2e, WP_InsaneIP:%.2e, WP_Off8Addr:%.2e, WP_ImpreciseAddr:%.2e, WP_Dropped:%.2e", (double)atomic_load(&num_samples_total), (double)atomic_load(&num_samples_imprecise), (double)atomic_load(&num_watchpoints_set), (double)atomic_load(&num_watchpoints_triggered), (double)atomic_load(&num_sample_triggering_watchpoints),  (double)atomic_load(&num_watchpoints_imprecise), (double)atomic_load(&num_insane_ip), (double)atomic_load(&num_watchpoints_imprecise_address_8_byte), (double)atomic_load(&num_watchpoints_imprecise_address), (double)atomic_load(&num_watchpoints_dropped));
+
+  AMSG("WATCHPOINT STATS: writtenBytes:%ld, usedBytes:%ld, deadBytes:%ld, newBytes:%ld, oldBytes:%ld, oldAppxBytes:%ld, loadedBytes:%ld, accessedIns:%ld, falseWWIns:%ld, falseRWIns:%ld, falseWRIns:%ld, trueWWIns:%ld, trueRWIns:%ld, trueWRIns:%ld, reuse:%ld, reuseTemporal:%ld, reuseSpatial:%ld, latency:%ld", num_writtenBytes, num_usedBytes, num_deadBytes, num_newBytes, num_oldBytes, num_oldAppxBytes, num_loadedBytes, num_accessedIns, num_falseWWIns, num_falseRWIns, num_falseWRIns, num_trueWWIns, num_trueRWIns, num_trueWRIns, num_reuse, num_reuseTemporal, num_reuseSpatial, num_latency);
+
+  AMSG("COMDETECTIVE STATS: fs_volume:%0.2lf, fs_core_volume:%0.2lf, ts_volume:%0.2lf, ts_core_volume:%0.2lf, as_volume:%0.2lf, as_core_volume:%0.2lf, cache_line_transfer:%0.2lf, cache_line_transfer_millions:%0.2lf, cache_line_transfer_gbytes:%0.2lf", fs_volume, fs_core_volume, ts_volume, ts_core_volume, as_volume, as_core_volume, cache_line_transfer, cache_line_transfer_millions, cache_line_transfer_gbytes);
 
   AMSG("UNWIND ANOMALIES: total: %ld errant: %ld, total-frames: %ld, total-libunwind-fails: %ld",
        cpu_total, cpu_dropped, cpu_frames, cpu_frames_libfail_total );

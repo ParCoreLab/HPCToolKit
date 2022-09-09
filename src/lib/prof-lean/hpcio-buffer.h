@@ -50,12 +50,23 @@
 #include <sys/types.h>
 #include <stdint.h>
 #include <stdio.h>
-
+#include "spinlock.h"
 #include "allocator.h"
 
 // opaque type
 
-typedef struct hpcio_outbuf_s hpcio_outbuf_t;
+//typedef struct hpcio_outbuf_s hpcio_outbuf_t;
+typedef struct hpcio_outbuf_s {
+  struct hpcio_outbuf_s *next;
+  uint32_t magic;
+  void  *buf_start;
+  size_t buf_size;
+  size_t in_use;
+  int  fd;
+  int  flags;
+  char use_lock;
+  spinlock_t lock;
+} hpcio_outbuf_t;
 
 //***************************************************************************
 
@@ -79,6 +90,13 @@ hpcio_outbuf_attach
   allocator_t alloc
 );
 
+int
+hpcio_outbuf_attach_shorter(hpcio_outbuf_t *outbuf, 
+  int fd,
+  void *buf_start,
+  size_t buf_size, 
+  int flags
+);
 
 ssize_t
 hpcio_outbuf_write

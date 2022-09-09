@@ -72,6 +72,7 @@
  *****************************************************************************/
 #include <monitor.h>
 #include <lib/prof-lean/spinlock.h>
+
 /******************************************************************************
  * local includes
  *****************************************************************************/
@@ -134,7 +135,6 @@
 #include <unwind/x86-family/x86-misc.h>
 #include "perf/perf-util.h"
 #include <hpcrun/handling_sample.h>
-#if 0
 #if ADAMANT_USED
 #include <adm_init_fini.h>
 #endif
@@ -262,14 +262,13 @@ WatchPointType reuse_trap_type = WP_RW; // WP_REUSE: what kind of memory access 
 ReuseType reuse_profile_type = REUSE_SPATIAL; // WP_REUSE: we want to collect temporal reuse, spatial reuse OR both?
 bool reuse_concatenate_use_reuse = false; // WP_REUSE: how to concatentate the use and reuse
 int profiling_mode = L1;
-#endif
+//#endif
 
 #define NUM_WATERMARK_METRICS (4)
 int curWatermarkId = 0;
 int watermark_metric_id[NUM_WATERMARK_METRICS] = {-1, -1, -1, -1};
 int pebs_metric_id[NUM_WATERMARK_METRICS] = {-1, -1, -1, -1};
 
-#if 0
 extern long load_and_store_all_load;
 extern long load_and_store_all_store;
 extern long store_all_store;
@@ -291,7 +290,6 @@ extern globalReuseTable_t globalStoreReuseWPs;
 
 __thread uint64_t prev_sample_timestamp = 0;
 __thread uint64_t last_sample_timestamp = 0;
-#endif
 
 void SetupWatermarkMetric(int metricId){
   if (curWatermarkId == NUM_WATERMARK_METRICS) {
@@ -316,8 +314,6 @@ typedef struct WPStats{
 }WPStats_t;
 
 __thread WPStats_t wpStats;
-
-#if 0
 __thread uint64_t prev_event_count = 0;
 uint64_t periodic_l2_load_miss_count = 0;
 uint64_t next_periodic_l2_load_miss_count = 0;
@@ -373,7 +369,7 @@ typedef enum WP_CLIENT_ID{
   WP_IPC_ALL_SHARING,
   WP_MAX_CLIENTS }WP_CLIENT_ID;
 
-WP_CLIENT_ID event_id;
+extern WP_CLIENT_ID event_id;
 
 typedef struct WpClientConfig{
   WP_CLIENT_ID id;
@@ -474,7 +470,7 @@ static int OpenWitchTraceOutput(){
   if (fd < 0){
     return -1;
   }
-  ret = hpcio_outbuf_attach(&(TD_GET(witch_client_trace_output)), fd, hpcrun_malloc(OUTPUT_TRACE_BUFFER_SIZE), OUTPUT_TRACE_BUFFER_SIZE, HPCIO_OUTBUF_UNLOCKED);
+  ret = hpcio_outbuf_attach_shorter(&(TD_GET(witch_client_trace_output)), fd, hpcrun_malloc(OUTPUT_TRACE_BUFFER_SIZE), OUTPUT_TRACE_BUFFER_SIZE, HPCIO_OUTBUF_UNLOCKED);
   if (ret != HPCFMT_OK){
     return -1;
   }
@@ -887,7 +883,6 @@ static WpClientConfig_t * theWPConfig = NULL;
 bool WatchpointClientActive(){
   return theWPConfig != NULL;
 }
-#endif
 
 #define MAX_BLACK_LIST_ADDRESS (1024)
 
@@ -955,7 +950,7 @@ static void PopulateBlackListAddresses() {
   spinlock_unlock(&blackListLock);
 }
 
-#if 0
+
   static void
 METHOD_FN(init)
 {
@@ -1951,7 +1946,10 @@ METHOD_FN(display_events)
   printf("\n");
 }
 
-
+static void
+METHOD_FN(finalize_event_list)
+{
+}
 /***************************************************************************
  * object
  ***************************************************************************/
@@ -4000,7 +3998,7 @@ static WPTriggerActionType IPCTrueSharingWPCallback(WatchPointInfo_t *wpi, int s
 static WPTriggerActionType IPCAllSharingWPCallback(WatchPointInfo_t *wpi, int startOffset, int safeAccessLen, WatchPointTrigger_t * wt){
   return ALREADY_DISABLED;
 }
-#endif
+
 
 static inline bool IsLibMonitorAddress(void * addr) {
   // race is ok,
@@ -4031,7 +4029,6 @@ static inline bool isTdataAddress(void *addr) {
   if ((addr > tdata-100) && (addr < tdata+100)) return true;
   return false;
 }
-//#endif
 
 static inline bool IsBlackListedWatchpointAddress(void *addr){
   for(int i = 0; i < numBlackListAddresses; i++){
@@ -4074,7 +4071,7 @@ static inline bool IsValidAddress(void * addr, void * pc){
   return false;
 }
 
-#if 0
+
 void ReadSharedDataTransactionally(SharedData_t *localSharedData){
   // Laport's STM
   do{
@@ -4770,55 +4767,80 @@ int ibs_get_mem_width(int mem_width) {
                 return 16;
         return 1;
 }
-#endif
 
 bool OnSample(perf_mmap_data_t * mmap_data, /*void * contextPC*/void * context, cct_node_t *node, int sampledMetricId) {
-  //fprintf(stderr, "OnSample is called\n");
-  void * data_addr = mmap_data->addr;
-    void * contextPC = hpcrun_context_pc(context);
-    void * precisePC = (mmap_data->header_misc & PERF_RECORD_MISC_EXACT_IP) ? mmap_data->ip : 0;
-    // Filert out address and PC (0 or kernel address will not pass)
-    fprintf(stderr, "OnSample is called 1, data_addr: %lx, precisePC: %lx, mmap_data->ip: %lx\n", data_addr, precisePC, mmap_data->ip);
-    if (!IsValidAddress(data_addr, precisePC)) {
-        goto ErrExit; // incorrect access type
-    }
+  if (strncmp (hpcrun_id2metric(sampledMetricId)->name,"L2_RQSTS.MISS", 13) == 0)
+    fprintf(stderr, "there is an L2_RQSTS.MISS 1\n"); 
+  //fprintf(stderr, "in OnSample\n");
+  void * contextPC = hpcrun_context_pc(context); 
+  void * data_addr = mmap_data->addr; 
+  void * precisePC = (amd_ibs_flag || (mmap_data->header_misc & PERF_RECORD_MISC_EXACT_IP)) ? mmap_data->ip : 0;
+  // Filert out address and PC (0 or kernel address will not pass)
+  //fprintf(stderr, "OnSample is called %lx\n", data_addr);
+  if (strncmp (hpcrun_id2metric(sampledMetricId)->name,"L2_RQSTS.MISS", 13) == 0)
+    fprintf(stderr, "there is an L2_RQSTS.MISS\n");
+//#if 0
+  if (amd_ibs_flag /*&& mmap_data->store*/) {
+        //valid_sample_count++;
+        valid_sample_count1++;
+  }
+//#endif
+  if (!IsValidAddress(data_addr, precisePC)) { 
+    goto ErrExit; // incorrect access type
+  }
 
-    // do not monitor NULL CCT node
-    fprintf(stderr, "OnSample is called 2\n");
-    if (node == NULL) {
-        goto ErrExit; // incorrect CCT
-    }
-
-   // fprintf(stderr, " numWatchpointsSet=%lu\n", wpStats.numWatchpointsSet);
-
-   int accessLen;
-   AccessType accessType;
-
-   fprintf(stderr, "OnSample is called 3\n");
-
-   if(false == get_mem_access_length_and_type(precisePC, (uint32_t*)(&accessLen), &accessType)){
-       //EMSG("Sampled a non load store at = %p\n", precisePC);
-       goto ErrExit; // incorrect access type
-   }
-
-   fprintf(stderr, "OnSample is called 4\n");
-
-   if(accessType == UNKNOWN || accessLen == 0){
-       //EMSG("Sampled sd.accessType = %d, accessLen=%d at precisePC = %p\n", accessType, accessLen, precisePC);
-       goto ErrExit; // incorrect access type
-   }
-
-    fprintf(stderr, "OnSample is called 5\n");
-    // if the context PC and precise PC are not in the same function, then the sample point is inaccurate.
-    bool isSamplePointAccurate;
-    FunctionType ft = is_same_function(contextPC, precisePC);
-    if (ft == SAME_FN) {
-        isSamplePointAccurate = true;
-    } else {
-        isSamplePointAccurate = false;
-    }
-    fprintf(stderr, "OnSample is called 6\n"); 
+  if (amd_ibs_flag /*&& mmap_data->store*/) {
+        //valid_sample_count++;
+        valid_sample_count2++;
+  }
+//#endif
+  //fprintf(stderr, "no problem 1\n");
 #if 0
+  if (!amd_ibs_flag  && node == NULL) {
+    goto ErrExit; // incorrect CCT
+  }
+#endif
+
+  if (node == NULL) {
+    goto ErrExit; // incorrect CCT
+  } 
+
+  //fprintf(stderr, "no problem 2\n");
+
+  uint64_t curTime = rdtsc();
+  int accessLen = 1;
+  AccessType accessType;
+  if(amd_ibs_flag) {
+	  //fprintf(stderr, "looking for precisePC: %lx in getEntryFromAccessTypeLengthCache\n", precisePC);
+	if(mmap_data->store)
+        	accessType = STORE;
+        else if (mmap_data->load)
+                accessType = LOAD;
+	accessLen = ibs_get_mem_width(mmap_data->mem_width);
+	//fprintf(stderr, "mem_width: %d, accessLen: %d\n", mmap_data->mem_width, accessLen); 		
+  }
+  else if(false == get_mem_access_length_and_type(precisePC, (uint32_t*)(&accessLen), &accessType)){
+    //EMSG("Sampled a non load store at = %p\n", precisePC);
+    goto ErrExit; // incorrect access type
+  }
+  //fprintf(stderr, "in OnSample, sampled address: %lx, disassembled address: %lx, mmap_data->addr_valid: %d\n", data_addr, addr1, mmap_data->addr_valid);
+  if(!amd_ibs_flag && (accessType == UNKNOWN || accessLen == 0)){
+    //EMSG("Sampled sd.accessType = %d, accessLen=%d at precisePC = %p\n", accessType, accessLen, precisePC);
+    goto ErrExit; // incorrect access type
+  }
+  //fprintf(stderr, "no problem 4\n");
+
+  //fprintf(stderr, "A sample is handled in OnSample\n");
+  // if the context PC and precise PC are not in the same function, then the sample point is inaccurate.
+  bool isSamplePointAccurate;
+  FunctionType ft = is_same_function(contextPC, precisePC);
+  if (ft == SAME_FN) {
+    isSamplePointAccurate = true;
+  } else {
+    isSamplePointAccurate = false;
+  }
+
+  //fprintf(stderr, "no problem 5\n");
   switch (theWPConfig->id) {
     case WP_DEADSPY:{
                       if(accessType == LOAD){
@@ -6922,7 +6944,6 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
     default:
                           break;
   }
-#endif
   //fprintf(stderr, "here7!\n");
   wpStats.numWatchpointsSet ++;
   return true;
@@ -6933,7 +6954,6 @@ ErrExit:
 
 }
 
-#if 0
 void dump_profiling_metrics() {
   //#if 0
   if(theWPConfig->id == WP_AMD_COMM) {
@@ -7094,5 +7114,5 @@ void dump_profiling_metrics() {
 
   }
 }
-#endif
+
 

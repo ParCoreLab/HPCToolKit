@@ -195,6 +195,7 @@ typedef struct thread_data_t {
   // ----------------------------------------
 
   core_profile_trace_data_t core_profile_trace_data;
+  hpcio_outbuf_t witch_client_trace_output;
 
   // ----------------------------------------
   // backtrace buffer

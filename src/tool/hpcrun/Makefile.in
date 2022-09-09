@@ -615,6 +615,9 @@ am__objects_14 = utilities/libhpcrun_la-first_func.lo \
 	libhpcrun_la-handling_sample.lo \
 	libhpcrun_la-hpcrun-initializers.lo \
 	libhpcrun_la-hpcrun_options.lo libhpcrun_la-hpcrun_stats.lo \
+	libhpcrun_la-matrix.lo \
+        libhpcrun_la-myposix.lo \
+        libhpcrun_la-mymapping.lo \
 	libhpcrun_la-loadmap.lo libhpcrun_la-metrics.lo \
 	libhpcrun_la-name.lo libhpcrun_la-rank.lo \
 	libhpcrun_la-sample_event.lo libhpcrun_la-sample_prob.lo \
@@ -967,6 +970,7 @@ am__libhpcrun_o_SOURCES_DIST = utilities/first_func.c main.h main.c \
 	handling_sample.c hpcrun-initializers.c hpcrun_options.c \
 	hpcrun_stats.c loadmap.c metrics.c name.c rank.c \
 	sample_event.c sample_prob.c sample_sources_all.c \
+	matrix.c myposix.c mymapping.c \
 	sample-sources/blame-shift/blame-shift.c \
 	sample-sources/blame-shift/blame-map.c \
 	sample-sources/blame-shift/directed.c \
@@ -1904,6 +1908,7 @@ MY_BASE_FILES = utilities/first_func.c main.h main.c disabled.c \
 	handling_sample.c hpcrun-initializers.c hpcrun_options.c \
 	hpcrun_stats.c loadmap.c metrics.c name.c rank.c \
 	sample_event.c sample_prob.c sample_sources_all.c \
+	matrix.c myposix.c mymapping.c \
 	sample-sources/blame-shift/blame-shift.c \
 	sample-sources/blame-shift/blame-map.c \
 	sample-sources/blame-shift/directed.c \
@@ -4660,7 +4665,7 @@ libhpcrun_la-hpcrun_stats.lo: hpcrun_stats.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhpcrun_la_CPPFLAGS) $(CPPFLAGS) $(libhpcrun_la_CFLAGS) $(CFLAGS) -c -o libhpcrun_la-hpcrun_stats.lo `test -f 'hpcrun_stats.c' || echo '$(srcdir)/'`hpcrun_stats.c
 
-libhpcrun_la-matrix.lo:	matrix.c
+libhpcrun_la-matrix.lo: matrix.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhpcrun_la_CPPFLAGS) $(CPPFLAGS) $(libhpcrun_la_CFLAGS) $(CFLAGS) -MT libhpcrun_la-matrix.lo -MD -MP -MF $(DEPDIR)/libhpcrun_la-matrix.Tpo -c -o libhpcrun_la-matrix.lo `test -f 'matrix.c' || echo '$(srcdir)/'`matrix.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libhpcrun_la-matrix.Tpo $(DEPDIR)/libhpcrun_la-matrix.Plo
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='matrix.c' object='libhpcrun_la-matrix.lo' libtool=yes @AMDEPBACKSLASH@
