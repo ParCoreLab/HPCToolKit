@@ -292,6 +292,9 @@ MY_BASE_FILES =				\
 	hpcrun-initializers.c		\
 	hpcrun_options.c		\
 	hpcrun_stats.c			\
+	matrix.c                        \
+        myposix.c                       \
+        mymapping.c			\	
 	loadmap.c			\
 	metrics.c			\
 	name.c				\
