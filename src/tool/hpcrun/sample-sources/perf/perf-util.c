@@ -445,7 +445,6 @@ perf_util_attr_init(
   }
 
   attr->precise_ip    = precise_ip;
-  attr->precise_ip    = 2;
 
   return true;
 }
