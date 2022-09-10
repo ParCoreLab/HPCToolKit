@@ -48,7 +48,7 @@ long number_of_traps;
 long global_store_sampling_period;
 long global_load_sampling_period;
 
-extern char output_directory[PATH_MAX];
+extern char output_directory[PATH_MAX + 1];
 
 extern const char * hpcrun_files_executable_name();
 

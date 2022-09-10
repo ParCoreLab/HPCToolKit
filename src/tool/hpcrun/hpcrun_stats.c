@@ -125,7 +125,7 @@ static atomic_long num_corrected_reuse_distance = ATOMIC_VAR_INIT(0);
 
 extern void dump_profiling_metrics();
 
-extern char output_directory[PATH_MAX];
+extern char output_directory[PATH_MAX + 1];
 
 //***************************************************************************
 // interface operations
@@ -514,7 +514,9 @@ hpcrun_stats_print_summary(void)
     adm_finalize(object_flag, output_directory, hpcrun_files_executable_name(), getpid() );
   }
 #endif
-  dump_profiling_metrics(); 
+  fprintf(stderr, "in hpcrun_stats_print_summary before dump_profiling_metrics\n");
+  //dump_profiling_metrics(); 
+  fprintf(stderr, "in hpcrun_stats_print_summary after dump_profiling_metrics\n");
   long cpu_blocked_async  = atomic_load_explicit(&num_samples_blocked_async, memory_order_relaxed);
   long cpu_blocked_dlopen = atomic_load_explicit(&num_samples_blocked_dlopen, memory_order_relaxed);
   long cpu_blocked = cpu_blocked_async + cpu_blocked_dlopen;

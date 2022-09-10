@@ -165,8 +165,8 @@
 #define DEFAULT_COMPRESSION 5
 
 #define PERF_FD_FINALIZED (-2)
-
-
+bool amd_ibs_flag = false;
+__thread int original_sample_count = 0;
 //******************************************************************************
 // type declarations
 //******************************************************************************
@@ -577,10 +577,12 @@ record_sample(event_thread_t *current, perf_mmap_data_t *mmap_data,
                     counter /*metricIncr*/);
 
   //if(WatchpointClientActive()){
+  fprintf(stderr, "before OnSample\n");
 	OnSample(mmap_data, 
 				/*hpcrun_context_pc(context)*/ context,
                                 sv->sample_node,
                                 current->event->hpcrun_metric_id);
+  fprintf(stderr, "after OnSample\n");
   //} 
 
   return sv;
@@ -705,6 +707,7 @@ METHOD_FN(start)
 static void
 METHOD_FN(thread_fini_action)
 {
+  fprintf(stderr, "in thread_fini_action\n");
   TMSG(LINUX_PERF, "%d: unregister thread", self->sel_idx);
 
   METHOD_CALL(self, stop); // stop the sample source 
@@ -715,6 +718,7 @@ METHOD_FN(thread_fini_action)
   perf_thread_fini(nevents, event_thread);
 
   self->state = UNINIT;
+  fprintf(stderr, "after thread_fini_action\n");
 
   TMSG(LINUX_PERF, "%d: unregister thread OK", self->sel_idx);
 }
@@ -758,6 +762,7 @@ METHOD_FN(stop)
 static void
 METHOD_FN(shutdown)
 {
+  fprintf(stderr, "in shutdown\n");
   TMSG(LINUX_PERF, "shutdown");
 
   METHOD_CALL(self, stop); // stop the sample source 
@@ -766,6 +771,7 @@ METHOD_FN(shutdown)
   int nevents = (self->evl).nevents; 
 
   perf_thread_fini(nevents, event_thread);
+  fprintf(stderr, "end of shutdown\n");
 
   self->state = UNINIT;
 
@@ -1187,12 +1193,15 @@ perf_event_handler(
 
     // reading info from mmapped buffer
     more_data = read_perf_buffer(current->mmap, attr, &mmap_data);
-    fprintf(stderr, "mmap_data.ip: %lx, mmap_data.addr: %lx\n", mmap_data.ip, mmap_data.addr);
+    fprintf(stderr, "mmap_data.ip: %lx, mmap_data.addr: %lx 1\n", mmap_data.ip, mmap_data.addr);
     sample_val_t sv;
     memset(&sv, 0, sizeof(sample_val_t));
 
-    if (mmap_data.header_type == PERF_RECORD_SAMPLE)
+    if (mmap_data.header_type == PERF_RECORD_SAMPLE) {
+      fprintf(stderr, "mmap_data.ip: %lx, mmap_data.addr: %lx 2\n", mmap_data.ip, mmap_data.addr);
       record_sample(current, &mmap_data, context, &sv);
+      fprintf(stderr, "mmap_data.ip: %lx, mmap_data.addr: %lx 3\n", mmap_data.ip, mmap_data.addr);
+    }
 
     kernel_block_handler(current, sv, &mmap_data);
 

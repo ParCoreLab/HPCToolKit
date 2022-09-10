@@ -166,7 +166,7 @@ static void hpcrun_rename_log_file_early(int rank);
 //***************************************************************
 
 static char default_path[PATH_MAX + 1] = {'\0'};
-static char output_directory[PATH_MAX + 1] = {'\0'};
+char output_directory[PATH_MAX + 1] = {'\0'};
 static char executable_name[PATH_MAX + 1] = {'\0'};
 static char executable_pathname[PATH_MAX + 1] = {'\0'};
 
@@ -183,7 +183,7 @@ static int log_rename_ret = 0;
 
 static int vdso_written = 0; // for coordination across fork
 
-char vdso_hash_str[HASH_LENGTH * 2];
+char vdso_hash_str[HASH_LENGTH * 4];
 //***************************************************************
 // private operations
 //***************************************************************
@@ -401,6 +401,7 @@ hpcrun_files_set_directory()
 {  
   char *path = getenv(HPCRUN_OUT_PATH);
 
+  fprintf(stderr, "path: %s\n", path);
   // compute path for default measurement directory
   if (path == NULL || strlen(path) == 0) {
     const char *jid = OSUtil_jobid();
@@ -432,6 +433,7 @@ hpcrun_files_set_directory()
   if (!rpath) {
     hpcrun_abort("hpcrun: could not access directory `%s': %s", path, strerror(errno));
   }
+  fprintf(stderr, "output_directory 0: %s\n", output_directory);
 }
 
 
@@ -559,6 +561,7 @@ hpcrun_rename_trace_file(int rank, int thread)
 void
 hpcrun_save_vdso()
 {
+  fprintf(stderr, "output_directory 4: %s\n", output_directory);
   char name[PATH_MAX + 1];
   int fd;
   int error = 0;
@@ -575,6 +578,7 @@ hpcrun_save_vdso()
   void *vdso_addr = vdso_segment_addr();
 
   // if there is a [vdso] to write
+  fprintf(stderr, "output_directory 5: %s\n", output_directory);
   if (vdso_addr) {
     size_t vdso_len = vdso_segment_len();
 
@@ -582,17 +586,21 @@ hpcrun_save_vdso()
   // We can distinguish different vdso on different compute nodes
   unsigned char hash[HASH_LENGTH];  
   unsigned int hash_len = crypto_hash_length();
+  fprintf(stderr, "output_directory 6: %s\n", output_directory);
   crypto_hash_compute((const unsigned char*)vdso_addr, vdso_len, hash, hash_len);
+  fprintf(stderr, "output_directory 6.5: %s\n", output_directory);
   size_t i;
   for (i = 0; i < hash_len; ++i) {
     sprintf(&vdso_hash_str[i*2], "%02x", hash[i]);
   }
+  fprintf(stderr, "output_directory 7: %s\n", output_directory);
   if (strlen(output_directory) + 6 + hash_len * 2 + 5 > PATH_MAX) {
     fd = -1;
     error = ENAMETOOLONG;
     hpcrun_abort("hpctoolkit: unable to write [vdso] file: %s", strerror(error));
     return;
   }
+  fprintf(stderr, "output_directory: %s\n", output_directory);
   strcpy(name, output_directory);
   strcat(name, "/vdso/");
   mkdir(name, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
