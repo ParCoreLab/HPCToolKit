@@ -4841,6 +4841,7 @@ bool OnSample(perf_mmap_data_t * mmap_data, /*void * contextPC*/void * context, 
   }
 
   //fprintf(stderr, "no problem 5\n");
+#if 0
   switch (theWPConfig->id) {
     case WP_DEADSPY:{
                       if(accessType == LOAD){
@@ -6944,6 +6945,7 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
     default:
                           break;
   }
+#endif
   //fprintf(stderr, "here7!\n");
   wpStats.numWatchpointsSet ++;
   return true;
