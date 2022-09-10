@@ -121,6 +121,7 @@ sample_source_t*
 hpcrun_source_can_process(char *event)
 {
   for (sample_source_t* ss=registered_sample_sources; ss; ss = ss->next_reg){
+    fprintf(stderr, "sample source: %s\n", ss->name);
     if (METHOD_CALL(ss, supports_event, event)){
       return ss;
     }
@@ -137,9 +138,11 @@ hpcrun_source_can_process(char *event)
 void
 hpcrun_registered_sources_init(void)
 {
+  fprintf(stderr, "hpcrun_registered_sources_init is called\n");
   hpcrun_sample_sources_register(); // ensure all sample sources are registered
 
   for (sample_source_t* ss=registered_sample_sources; ss; ss = ss->next_reg){
+    fprintf(stderr, "sample source: %s is initialized\n", ss->name);
     METHOD_CALL(ss, init);
     TMSG(SS_COMMON, "sample source \"%s\": init", ss->name);
   }

@@ -266,6 +266,8 @@ hpcrun_loadmap_iterate
   void *data
 );
 
+extern void hpcrun_set_ipc_load_map(bool);
+extern bool hpcrun_get_ipc_load_map();
 
 //***************************************************************************
 

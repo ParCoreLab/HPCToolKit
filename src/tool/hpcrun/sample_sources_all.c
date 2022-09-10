@@ -252,6 +252,7 @@ hpcrun_sample_sources_from_eventlist(char* evl)
       METHOD_CALL(s, add_event, event);
     }
     else {
+      fprintf(stderr, "before hpcrun_ssfail_unknown\n");
       hpcrun_ssfail_unknown(event);
     }
   }

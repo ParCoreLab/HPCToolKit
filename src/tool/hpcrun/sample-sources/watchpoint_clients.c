@@ -1324,7 +1324,7 @@ METHOD_FN(shutdown)
   static bool
 METHOD_FN(supports_event, const char *ev_str)
 {
-  //fprintf(stderr, "event is checked here\n");
+  fprintf(stderr, "event is checked here\n");
   for(int i = 0; i < WP_MAX_CLIENTS; i++) {
     if (hpcrun_ev_is(ev_str, wpClientConfig[i].name)) {
       //fprintf(stderr, "event is supported\n");
@@ -1436,6 +1436,7 @@ int reading_locality_vector()
   static void
 METHOD_FN(process_event_list, int lush_metrics)
 {
+  fprintf(stderr, "this process_event_list is called\n");
   // Only one WP client can be active at a time
   if (theWPConfig) {
     EEMSG("Only one watchpoint client can be active at a time \n");
@@ -4841,7 +4842,7 @@ bool OnSample(perf_mmap_data_t * mmap_data, /*void * contextPC*/void * context, 
   }
 
   //fprintf(stderr, "no problem 5\n");
-#if 0
+
   switch (theWPConfig->id) {
     case WP_DEADSPY:{
                       if(accessType == LOAD){
@@ -6945,7 +6946,7 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
     default:
                           break;
   }
-#endif
+
   //fprintf(stderr, "here7!\n");
   wpStats.numWatchpointsSet ++;
   return true;

@@ -515,7 +515,7 @@ hpcrun_stats_print_summary(void)
   }
 #endif
   fprintf(stderr, "in hpcrun_stats_print_summary before dump_profiling_metrics\n");
-  //dump_profiling_metrics(); 
+  dump_profiling_metrics(); 
   fprintf(stderr, "in hpcrun_stats_print_summary after dump_profiling_metrics\n");
   long cpu_blocked_async  = atomic_load_explicit(&num_samples_blocked_async, memory_order_relaxed);
   long cpu_blocked_dlopen = atomic_load_explicit(&num_samples_blocked_dlopen, memory_order_relaxed);

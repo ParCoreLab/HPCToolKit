@@ -68,7 +68,7 @@ static hpcrun_loadmap_t  s_loadmap;
 static hpcrun_loadmap_t* s_loadmap_ptr = NULL;
 
 static dso_info_t* s_dso_free_list = NULL;
-
+static bool ipc_load_map = false;
 
 /* locking functions to ensure that loadmaps are consistent */
 static spinlock_t loadmap_lock = SPINLOCK_UNLOCKED;
@@ -76,6 +76,15 @@ static spinlock_t loadmap_lock = SPINLOCK_UNLOCKED;
 static loadmap_notify_t *notification_recipients = NULL;
 
 static void hpcrun_loadModule_flags_init(load_module_t *lm);
+
+
+void hpcrun_set_ipc_load_map(bool val){
+    ipc_load_map = val;
+}
+
+bool hpcrun_get_ipc_load_map(){
+    return ipc_load_map;
+}
 
 void
 hpcrun_loadmap_notify_register(loadmap_notify_t *n)
