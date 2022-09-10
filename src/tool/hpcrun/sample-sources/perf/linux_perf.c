@@ -394,9 +394,6 @@ perf_thread_init(event_info_t *event, event_thread_t *et)
   TMSG(LINUX_PERF, "event fd: %d, skid: %d, code: %d, type: %d, period: %d, freq: %d",
         et->fd, event->attr.precise_ip, event->attr.config,
         event->attr.type, event->attr.sample_freq, event->attr.freq);
-  fprintf(stderr, "event fd: %d, precise_ip: %d, code: %d, type: %d, period: %d, freq: %d, wakeup_events: %d\n",
-        et->fd, event->attr.precise_ip, event->attr.config,
-        event->attr.type, event->attr.sample_freq, event->attr.freq, event->attr.wakeup_events); 
 
   // check if perf_event_open is successful
   if (et->fd < 0) {
@@ -577,12 +574,10 @@ record_sample(event_thread_t *current, perf_mmap_data_t *mmap_data,
                     counter /*metricIncr*/);
 
   //if(WatchpointClientActive()){
-  fprintf(stderr, "before OnSample\n");
 	OnSample(mmap_data, 
 				/*hpcrun_context_pc(context)*/ context,
                                 sv->sample_node,
                                 current->event->hpcrun_metric_id);
-  fprintf(stderr, "after OnSample\n");
   //} 
 
   return sv;
@@ -1193,14 +1188,11 @@ perf_event_handler(
 
     // reading info from mmapped buffer
     more_data = read_perf_buffer(current->mmap, attr, &mmap_data);
-    fprintf(stderr, "mmap_data.ip: %lx, mmap_data.addr: %lx 1\n", mmap_data.ip, mmap_data.addr);
     sample_val_t sv;
     memset(&sv, 0, sizeof(sample_val_t));
 
     if (mmap_data.header_type == PERF_RECORD_SAMPLE) {
-      fprintf(stderr, "mmap_data.ip: %lx, mmap_data.addr: %lx 2\n", mmap_data.ip, mmap_data.addr);
       record_sample(current, &mmap_data, context, &sv);
-      fprintf(stderr, "mmap_data.ip: %lx, mmap_data.addr: %lx 3\n", mmap_data.ip, mmap_data.addr);
     }
 
     kernel_block_handler(current, sv, &mmap_data);

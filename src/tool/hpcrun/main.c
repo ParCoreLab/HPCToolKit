@@ -738,7 +738,6 @@ hpcrun_fini_internal()
     hpcrun_process_aux_cleanup_action();
 
     int is_process = 1;
-    fprintf(stderr, "in hpcrun_fini_internal before thread_finalize\n");
     thread_finalize(is_process);
 
 // FIXME: this isn't in master-gpu-trace. how is it managed?
@@ -750,11 +749,8 @@ hpcrun_fini_internal()
 #ifndef HPCRUN_STATIC_LINK
     auditor_exports->mainlib_disconnect();
 #endif
-    fprintf(stderr, "in hpcrun_fini_internal before fnbounds_fini\n");
     fnbounds_fini();
-    fprintf(stderr, "in hpcrun_fini_internal before hpcrun_stats_print_summary\n");
     hpcrun_stats_print_summary();
-    fprintf(stderr, "in hpcrun_fini_internal before messages_fini\n");
     messages_fini();
   }
 }
@@ -953,7 +949,6 @@ monitor_init_process(int *argc, char **argv, void* data)
 
   if (!hpcrun_get_disabled()) {
     hpcrun_files_set_directory();
-    fprintf(stderr, "output_directory 2: %s\n", output_directory);
     messages_logfile_create();
 
     // must initialize unwind recipe map before initializing fnbounds
@@ -963,23 +958,18 @@ monitor_init_process(int *argc, char **argv, void* data)
     // We need to save vdso before initializing fnbounds this
     // is because fnbounds_init will iterate over the load map
     // and will invoke analysis on vdso
-    fprintf(stderr, "output_directory 3: %s\n", output_directory);
     hpcrun_save_vdso();
 
     // init callbacks for each device //Module_ignore_map is here
-    fprintf(stderr, "before hpcrun_initializer_init\n");
     hpcrun_initializer_init();
-    fprintf(stderr, "before fnbounds_init\n");
     // fnbounds must be after module_ignore_map
     fnbounds_init(process_name);
-    fprintf(stderr, "before mainlib_connected\n");
 #ifndef HPCRUN_STATIC_LINK
     if (!is_child) {
       auditor_exports->mainlib_connected(get_saved_vdso_path());
     }
 #endif
   }
-  fprintf(stderr, "before hpcrun_prepare_measurement_subsystem\n");
   if (is_child){
     hpcrun_prepare_measurement_subsystem(is_child);
   }

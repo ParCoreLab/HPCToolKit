@@ -458,7 +458,6 @@ read_perf_buffer(pe_mmap_t *current_perf_mmap,
 
   if (hdr.type == PERF_RECORD_SAMPLE) {
       parse_record_buffer(data_head, &data_tail, current_perf_mmap, attr, mmap_info);
-      fprintf(stderr, "mmap_info->ip: %lx, mmap_info->addr: %lx\n", mmap_info->ip, mmap_info->addr);
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,3,0)
   } else if (hdr.type == PERF_RECORD_SWITCH) {
