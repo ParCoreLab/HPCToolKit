@@ -103,6 +103,8 @@
 #include <hpcrun/sample-sources/blame-shift/blame-shift.h>
 #include <hpcrun/utilities/tokenize.h>
 #include <hpcrun/utilities/arch/context-pc.h>
+#include <hpcrun/matrix.h>
+#include <hpcrun/mymapping.h>
 #include <hpcrun/trace.h>
 
 #include <evlist.h>
@@ -865,6 +867,12 @@ METHOD_FN(process_event_list, int lush_metrics)
     perf_skid_parse_event(event, &name);
     int period_type = hpcrun_extract_ev_thresh(name, strlen(name), name, &threshold,
         default_threshold.threshold_val);
+
+    if ((strncmp (name,"MEM_UOPS_RETIRED:ALL_STORES",27) == 0) || (strncmp (name,"MEM_INST_RETIRED.ALL_STORES",27) == 0))
+	global_store_sampling_period = threshold;
+
+    if (strncmp (name,"MEM_UOPS_RETIRED:ALL_LOADS",26) == 0)
+	global_load_sampling_period = threshold;
 
     // ------------------------------------------------------------
     // need a special case if we have our own customized  predefined  event

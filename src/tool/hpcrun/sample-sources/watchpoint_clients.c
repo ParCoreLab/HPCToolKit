@@ -3858,6 +3858,7 @@ static WPTriggerActionType ComDetectiveWPCallback(WatchPointInfo_t *wpi, int sta
     // tprev = ts2
     prev_timestamp = wpi->sample.bulletinBoardTimestamp;
   }
+#if 0
   fprintf(stderr, "in ComDetectiveWPCallback 3\n");
 
   sample_val_t v = hpcrun_sample_callpath(wt->ctxt, measured_metric_id, SAMPLE_UNIT_INC, 0, 1, NULL);
@@ -3868,6 +3869,7 @@ static WPTriggerActionType ComDetectiveWPCallback(WatchPointInfo_t *wpi, int sta
   fprintf(stderr, "before cct_metric_data_increment\n");
   cct_metric_data_increment(metricId, node, (cct_metric_data_t){.i = 1});
   fprintf(stderr, "in ComDetectiveWPCallback 4\n");
+#endif
   return ALREADY_DISABLED;
 }
 
@@ -6434,6 +6436,7 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
                             int current_core = sched_getcpu(); 
                             // L1 = getCacheline ( M1 )
                             void * cacheLineBaseAddressVar = (void *) ALIGN_TO_CACHE_LINE((size_t)data_addr);
+			    fprintf(stderr, "cacheLineBaseAddressVar: %lx, data_addr: %lx\n", cacheLineBaseAddressVar, data_addr);
                             int item_not_found = 0;
 			    fprintf(stderr, "WP_COMDETECTIVE 2\n");
                             struct SharedEntry item;
@@ -6528,7 +6531,7 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
                                       if(obj_id1 == 1 && obj_id2 == 1) {
                                         if(id == -1)
                                           id = get_id_after_backtrace();
-                                        //fprintf(stderr, "true sharing communication is detected on an unknown object with increment %0.2lf on node %d\n", global_sampling_period, id);
+                                          //fprintf(stderr, "true sharing communication is detected on an unknown object with increment %0.2lf on node %d\n", global_sampling_period, id);
                                         inc_true_matrix_by_object_id(id, item.tid, me, increment);
                                         inc_true_count_by_object_id(id, increment);
                                       }
@@ -6540,7 +6543,7 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
                                     metricId = true_wr_metric_id;
                                     joinNode = joinNodes[E_TRUE_WR_SHARE][joinNodeIdx];
 
-
+				    fprintf(stderr, "true sharing communication is detected on an unknown object with increment %0.2lf\n", global_sampling_period);
                                     ts_matrix[item.tid][me] = ts_matrix[item.tid][me] + increment;
                                     war_ts_matrix[item.tid][me] = war_ts_matrix[item.tid][me] + increment;
                                     if(item.core_id != current_core) {
@@ -6581,7 +6584,7 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
                                       int obj_id2 = get_object_id_by_address(data_addr);
                                       // debugging starts
                                       if((obj_id1 == obj_id2) && (obj_id1 == 998)) {
-                                        fprintf(stderr, "false sharing is detected between threads %d and %d on address %ld and address %ld\n", item.tid, me, item.address, data_addr);
+                                        //fprintf(stderr, "false sharing is detected between threads %d and %d on address %ld and address %ld\n", item.tid, me, item.address, data_addr);
                                         //sleep(4);
                                       }
                                       // debugging ends
@@ -6594,7 +6597,7 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
                                       if(obj_id1 == 1 && obj_id2 == 1) {
                                         if(id == -1)
                                           id = get_id_after_backtrace();
-                                        //fprintf(stderr, "false sharing communication is detected on an unknown object with increment %0.2lf on node %d\n", global_sampling_period, id);
+                                          //fprintf(stderr, "false sharing communication is detected on an unknown object with increment %0.2lf on node %d\n", global_sampling_period, id);
                                         inc_false_matrix_by_object_id(id, item.tid, me, increment);
                                         inc_false_count_by_object_id(id, increment);
                                       }
@@ -6605,6 +6608,7 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
                                     metricId = false_wr_metric_id;
                                     joinNode = joinNodes[E_FALSE_WR_SHARE][joinNodeIdx];
 
+				    fprintf(stderr, "false sharing communication is detected on an unknown object with increment %0.2lf\n", global_sampling_period);
                                     fs_matrix[item.tid][me] = fs_matrix[item.tid][me] + increment;
                                     war_fs_matrix[item.tid][me] = fs_matrix[item.tid][me] + increment;
                                     if(item.core_id != current_core) {
@@ -6686,6 +6690,7 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
                                     metricId = true_ww_metric_id;
                                     joinNode = joinNodes[E_TRUE_WW_SHARE][joinNodeIdx];
 
+				    fprintf(stderr, "true sharing communication is detected on an unknown object with increment %0.2lf\n", global_sampling_period);
                                     ts_matrix[item.tid][me] = ts_matrix[item.tid][me] + increment;
                                     waw_ts_matrix[item.tid][me] = waw_ts_matrix[item.tid][me] + increment;
                                     if(item.core_id != current_core) {
@@ -6750,6 +6755,7 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
                                     metricId = false_ww_metric_id;
                                     joinNode = joinNodes[E_FALSE_WW_SHARE][joinNodeIdx];
 
+				    fprintf(stderr, "false sharing communication is detected on an unknown object with increment %0.2lf\n", global_sampling_period);
                                     fs_matrix[item.tid][me] = fs_matrix[item.tid][me] + increment;
                                     waw_fs_matrix[item.tid][me] = waw_fs_matrix[item.tid][me] + increment;
                                     if(item.core_id != current_core) {
@@ -6806,6 +6812,7 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
                                 // update the metricId
                                 cct_metric_data_increment(metricId, node, (cct_metric_data_t){.i = 1});
                                  */
+#if 0
                                 sample_val_t v = hpcrun_sample_callpath(context, measured_metric_id, SAMPLE_UNIT_INC, 0/*skipInner*/, 1/*isSync*/, NULL);
 				fprintf(stderr, "before hpcrun_insert_special_node\n");
                                 cct_node_t *node1 = hpcrun_insert_special_node(v.sample_node, joinNode);
@@ -6814,6 +6821,7 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
 				fprintf(stderr, "before cct_metric_data_increment\n");
                                 // update the metricId
                                 cct_metric_data_increment(metricId, node1, (cct_metric_data_t){.i = 1});
+#endif
                                 // after
                               } else {
                                 // TryArmWatchpoint(T1)
@@ -6828,6 +6836,7 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
                               int do_not_arm_watchpoint = 0;
                               // getting an unexpired address from BulletinBoard that is not from T
                               struct SharedEntry localSharedData;
+			      fprintf(stderr, "before getEntryRandomlyFromBulletinBoard\n");
                               do{ 
                                 int64_t startCounter1 = bulletinBoard.counter;
                                 if(startCounter1 & 1) {
@@ -6839,6 +6848,7 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
                                   break;
                                 }
                               }while(1);
+			      fprintf(stderr, "after getEntryRandomlyFromBulletinBoard\n");	
 
                               if((localSharedData.cacheLineBaseAddress != -1) && !do_not_arm_watchpoint) {
                                 long  metricThreshold = hpcrun_id2metric(sampledMetricId)->period;
@@ -6873,13 +6883,7 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
                                     .bulletinBoardTimestamp = localSharedData.time,
                                     .expirationPeriod = localSharedData.expiration_period
                                   };
-                                  // if current WPs in T are old then
-                                  // Disarm any previously armed WPs
-                                  // Set WPs on an unexpired address from BulletinBoard that is not from T
-                                  //SubscribeWatchpointWithTime(&sd, OVERWRITE, false /* capture value */, curtime, lastTime);
-                                  //SubscribeWatchpointWithStoreTime(&sd, OVERWRITE, false /* capture value */, curtime);
                                   SubscribeWatchpoint(&sd, OVERWRITE, false /* capture value */);
-                                  //SubscribeWatchpoint(&sd, OVERWRITE, false /* capture value */); 
                                 }
                               }
                               // end watchpoints
@@ -6913,6 +6917,7 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
                                   inserted_item.expiration_period = (storeLastTime == 0 ? 0 : (storeCurTime - storeLastTime));
                                   int bb_flag = 0;
                                   //__sync_synchronize();
+                                  fprintf(stderr, "before hashInsertwithTime\n");
                                   hashInsertwithTime(inserted_item, storeCurTime, storeLastTime);
                                   //__sync_synchronize();
                                   bulletinBoard.counter++;
