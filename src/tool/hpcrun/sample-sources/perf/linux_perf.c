@@ -115,6 +115,7 @@
 #include "perfmon-util.h"
 
 #include "perf-util.h"        // u64, u32 and perf_mmap_data_t
+#include "amd_support.h"
 #include "perf_mmap.h"        // api for parsing mmapped buffer
 #include "perf_skid.h"
 #include "perf_event_open.h"
@@ -153,10 +154,15 @@
 // - PAPI uses SIGRTMIN+2
 // so SIGRTMIN+4 is a safe bet (temporarily)
 #define PERF_SIGNAL (SIGRTMIN+4)
+#define SIGNEW 44
 
 #define PERF_EVENT_AVAILABLE_UNKNOWN 0
 #define PERF_EVENT_AVAILABLE_NO      1
 #define PERF_EVENT_AVAILABLE_YES     2
+
+#define RAW_NONE        0
+#define RAW_IBS_FETCH   1
+#define RAW_IBS_OP      2
 
 #define PERF_MULTIPLEX_RANGE 1.2
 
@@ -165,6 +171,8 @@
 #define DEFAULT_COMPRESSION 5
 
 #define PERF_FD_FINALIZED (-2)
+
+int sched_getcpu(void);
 bool amd_ibs_flag = false;
 __thread int original_sample_count = 0;
 //******************************************************************************
@@ -219,7 +227,6 @@ static uint64_t hpcrun_cycles_cmd_period = 0;
 //******************************************************************************
 // private operations 
 //******************************************************************************
-
 
 /* 
  * determine whether the perf sample source has been finalized for this thread
@@ -573,12 +580,14 @@ record_sample(event_thread_t *current, perf_mmap_data_t *mmap_data,
   blame_shift_apply(current->event->hpcrun_metric_id, sv->sample_node, 
                     counter /*metricIncr*/);
 
-  //if(WatchpointClientActive()){
+  if(WatchpointClientActive()){
+	fprintf(stderr, "before OnSample\n");
 	OnSample(mmap_data, 
 				/*hpcrun_context_pc(context)*/ context,
                                 sv->sample_node,
                                 current->event->hpcrun_metric_id);
-  //} 
+	fprintf(stderr, "after OnSample\n");
+  } 
 
   return sv;
 }
@@ -1043,6 +1052,23 @@ read_fd(int fd)
 
 #include "sample-sources/ss_obj.h"
 
+void linux_perf_events_pause(){
+        sample_source_t *self = &obj_name();
+        event_thread_t *event_thread = TD_GET(ss_info)[self->sel_idx].ptr;
+        int nevents = self->evl.nevents;
+        //ibs_ctl_backup(nevents, event_thread);
+        perf_stop_all(nevents, event_thread);
+
+}
+
+void linux_perf_events_resume(){
+        sample_source_t *self = &obj_name();
+        event_thread_t *event_thread = TD_GET(ss_info)[self->sel_idx].ptr;
+        int nevents = self->evl.nevents;
+        //ibs_ctl_reload(nevents, event_thread);
+        perf_start_all(nevents, event_thread);
+}
+
 // ---------------------------------------------
 // signal handler
 // ---------------------------------------------
@@ -1054,6 +1080,7 @@ perf_event_handler(
   void* context
 )
 {
+  fprintf(stderr, "perf_event_handler is called\n");
   HPCTOOLKIT_APPLICATION_ERRNO_SAVE();
 
   // ----------------------------------------------------------------------------
@@ -1061,7 +1088,7 @@ perf_event_handler(
   // if the interrupt came while inside our code, then drop the sample
   // and return and avoid the potential for deadlock.
   // ----------------------------------------------------------------------------
-
+  fprintf(stderr, "sheckpoint 1\n");
   void *pc = hpcrun_context_pc(context);
 
   if (! hpcrun_safe_enter_async(pc)) {
@@ -1192,6 +1219,7 @@ perf_event_handler(
     memset(&sv, 0, sizeof(sample_val_t));
 
     if (mmap_data.header_type == PERF_RECORD_SAMPLE) {
+      fprintf(stderr, "sheckpoint 10\n");
       record_sample(current, &mmap_data, context, &sv);
     }
 

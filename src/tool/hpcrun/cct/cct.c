@@ -662,6 +662,15 @@ hpcrun_cct_insert_node(cct_node_t* target, cct_node_t* src)
   return src;
 }
 
+cct_node_t*
+hpcrun_insert_special_node(cct_node_t *root, const void *addr)
+{
+  ip_normalized_t tmp_ip = hpcrun_normalize_ip((void *) addr, NULL);
+  // plus 1 make sure lm_ip points to the correct callsite
+  cct_addr_t tmp = ADDR2(tmp_ip.lm_id, tmp_ip.lm_ip+1);
+  return hpcrun_cct_insert_addr(root, &tmp);
+}
+
 // mark a node for retention as the leaf of a traced call path.
 // for marked nodes, hpcprof must preserve the association between 
 // the node number recorded in the trace and its call path so that

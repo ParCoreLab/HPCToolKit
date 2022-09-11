@@ -1733,16 +1733,19 @@ static int OnWatchPoint(int signum, siginfo_t *info, void *context){
   event_thread_t *event_thread = TD_GET(ss_info)[self->sel_idx].ptr;
   int nevents = self->evl.nevents;
 #endif
-
+  fprintf(stderr, "in OnWatchPoint 1\n");
   linux_perf_events_pause();
   wp_count++;
+  fprintf(stderr, "in OnWatchPoint 2\n");
   //fprintf(stderr, "OnWatchPoint is executed 2\n");
   void* pc = hpcrun_context_pc(context);
+  fprintf(stderr, "in OnWatchPoint 3\n");
   if (!hpcrun_safe_enter_async(pc)) {
      fprintf(stderr, "wp trap is dropped\n");
     linux_perf_events_resume();
     return 0;
   }
+  fprintf(stderr, "in OnWatchPoint 4\n");
   //fprintf(stderr, "OnWatchPoint is executed 3\n");
   wp_count1++;
 
@@ -1935,6 +1938,7 @@ static int OnWatchPoint(int signum, siginfo_t *info, void *context){
   }
 
 //#if 0
+ fprintf(stderr, "in OnWatchPoint 5\n");
  if( false == CollectWatchPointTriggerInfo(wpi, &wpt, context)) {
     fprintf(stderr, "in OnWatchpoint at that point 3!!!!\n");
     tData.numWatchpointDropped++;
@@ -1943,7 +1947,9 @@ static int OnWatchPoint(int signum, siginfo_t *info, void *context){
   } else {
     //fprintf(stderr, "in OnWatchpoint at that point 1!!!!\n");
     tData.numActiveWatchpointTriggers++;
+    fprintf(stderr, "in OnWatchPoint 6\n");
     retVal = tData.fptr(wpi, 0, wpt.accessLength/* invalid*/,  &wpt);
+    fprintf(stderr, "in OnWatchPoint 7\n");
     //fprintf(stderr, "in OnWatchpoint at that point 2!!!!\n");
   }
 //#endif

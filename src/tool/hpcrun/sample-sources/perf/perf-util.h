@@ -179,4 +179,7 @@ perf_util_get_max_sample_rate();
 int
 perf_util_check_precise_ip_suffix(char *event);
 
+extern void linux_perf_events_pause();
+extern void linux_perf_events_resume();
+
 #endif

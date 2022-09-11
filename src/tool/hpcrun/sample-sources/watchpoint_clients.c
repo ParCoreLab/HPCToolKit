@@ -1334,21 +1334,16 @@ METHOD_FN(supports_event, const char *ev_str)
   return false;
 }
 
-static inline void SetUpFalseSharingMetrics(){
-  false_ww_metric_id = hpcrun_new_metric();
-  hpcrun_set_metric_info_and_period(false_ww_metric_id, "FALSE_WW_CONFLICT", MetricFlags_ValFmt_Int, 1, metric_property_none);
-  false_rw_metric_id = hpcrun_new_metric();
-  hpcrun_set_metric_info_and_period(false_rw_metric_id, "FALSE_RW_CONFLICT", MetricFlags_ValFmt_Int, 1, metric_property_none);
-  false_wr_metric_id = hpcrun_new_metric();
-  hpcrun_set_metric_info_and_period(false_wr_metric_id, "FALSE_WR_CONFLICT", MetricFlags_ValFmt_Int, 1, metric_property_none);
+static inline void SetUpFalseSharingMetrics(kind_info_t *pthr_kind){
+  false_ww_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "FALSE_WW_CONFLICT", MetricFlags_ValFmt_Int, 1, metric_property_none); 
+  false_rw_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "FALSE_RW_CONFLICT", MetricFlags_ValFmt_Int, 1, metric_property_none);
+  false_wr_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "FALSE_WR_CONFLICT", MetricFlags_ValFmt_Int, 1, metric_property_none);
 }
-static inline void SetUpTrueSharingMetrics(){
-  true_ww_metric_id = hpcrun_new_metric();
-  hpcrun_set_metric_info_and_period(true_ww_metric_id, "TRUE_WW_CONFLICT", MetricFlags_ValFmt_Int, 1, metric_property_none);
-  true_rw_metric_id = hpcrun_new_metric();
-  hpcrun_set_metric_info_and_period(true_rw_metric_id, "TRUE_RW_CONFLICT", MetricFlags_ValFmt_Int, 1, metric_property_none);
-  true_wr_metric_id = hpcrun_new_metric();
-  hpcrun_set_metric_info_and_period(true_wr_metric_id, "TRUE_WR_CONFLICT", MetricFlags_ValFmt_Int, 1, metric_property_none);
+
+static inline void SetUpTrueSharingMetrics(kind_info_t *pthr_kind){
+  true_ww_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "TRUE_WW_CONFLICT", MetricFlags_ValFmt_Int, 1, metric_property_none);
+  true_rw_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "TRUE_RW_CONFLICT", MetricFlags_ValFmt_Int, 1, metric_property_none);
+  true_wr_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "TRUE_WR_CONFLICT", MetricFlags_ValFmt_Int, 1, metric_property_none);
 }
 
 int locality_vector[4][50];
@@ -1471,32 +1466,27 @@ METHOD_FN(process_event_list, int lush_metrics)
 
   event_type = theWPConfig->id;
 
+  kind_info_t *pthr_kind = hpcrun_metrics_new_kind();
+
   switch (theWPConfig->id) {
     case WP_DEADSPY:
-      measured_metric_id = hpcrun_new_metric();
-      hpcrun_set_metric_info_and_period(measured_metric_id, "BYTES_USED", MetricFlags_ValFmt_Int, 1, metric_property_none);
-      dead_metric_id = hpcrun_new_metric();
-      hpcrun_set_metric_info_and_period(dead_metric_id, "BYTES_DEAD", MetricFlags_ValFmt_Int, 1, metric_property_none);
+      measured_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "BYTES_USED", MetricFlags_ValFmt_Int, 1, metric_property_none);
+      dead_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "BYTES_DEAD", MetricFlags_ValFmt_Int, 1, metric_property_none);
       break;
 
     case WP_REDSPY:
     case WP_LOADSPY:
-      measured_metric_id = hpcrun_new_metric();
-      hpcrun_set_metric_info_and_period(measured_metric_id, "BYTES_NEW", MetricFlags_ValFmt_Int, 1, metric_property_none);
-      red_metric_id = hpcrun_new_metric();
-      hpcrun_set_metric_info_and_period(red_metric_id, "BYTES_RED", MetricFlags_ValFmt_Int, 1, metric_property_none);
-      redApprox_metric_id = hpcrun_new_metric();
-      hpcrun_set_metric_info_and_period(redApprox_metric_id, "BYTES_RED_APPROX", MetricFlags_ValFmt_Int, 1, metric_property_none);
+      measured_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "BYTES_NEW", MetricFlags_ValFmt_Int, 1, metric_property_none);
+      red_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "BYTES_RED", MetricFlags_ValFmt_Int, 1, metric_property_none);
+      redApprox_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "BYTES_RED_APPROX", MetricFlags_ValFmt_Int, 1, metric_property_none);
       break;
 
     case WP_TEMPORAL_REUSE:
-      temporal_metric_id = hpcrun_new_metric();
-      hpcrun_set_metric_info_and_period(temporal_metric_id, "TEMPORAL", MetricFlags_ValFmt_Int, 1, metric_property_none);
+      temporal_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "TEMPORAL", MetricFlags_ValFmt_Int, 1, metric_property_none);
       break;
 
     case WP_SPATIAL_REUSE:
-      spatial_metric_id = hpcrun_new_metric();
-      hpcrun_set_metric_info_and_period(spatial_metric_id, "SPATIAL", MetricFlags_ValFmt_Int, 1, metric_property_none);
+      spatial_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "SPATIAL", MetricFlags_ValFmt_Int, 1, metric_property_none);
       break;
 
     case WP_ALL_SHARING:
@@ -1505,19 +1495,17 @@ METHOD_FN(process_event_list, int lush_metrics)
     case WP_IPC_ALL_SHARING:
       // must have a canonical load map across processes
       hpcrun_set_ipc_load_map(true);
-      measured_metric_id = hpcrun_new_metric();
-      hpcrun_set_metric_info_and_period(measured_metric_id, "COMMUNICATION", MetricFlags_ValFmt_Int, 1, metric_property_none);
-      SetUpFalseSharingMetrics();
-      SetUpTrueSharingMetrics();
+      measured_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "COMMUNICATION", MetricFlags_ValFmt_Int, 1, metric_property_none);
+      SetUpFalseSharingMetrics(pthr_kind);
+      SetUpTrueSharingMetrics(pthr_kind);
       break;
 
     case WP_FALSE_SHARING:
     case WP_IPC_FALSE_SHARING:
       // must have a canonical load map across processes
       hpcrun_set_ipc_load_map(true);
-      measured_metric_id = hpcrun_new_metric();
-      hpcrun_set_metric_info_and_period(measured_metric_id, "MONITORED", MetricFlags_ValFmt_Int, 1, metric_property_none);
-      SetUpFalseSharingMetrics();
+      measured_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "MONITORED", MetricFlags_ValFmt_Int, 1, metric_property_none);
+      SetUpFalseSharingMetrics(pthr_kind);
       break;
 
     case WP_REUSE:
@@ -1647,24 +1635,16 @@ METHOD_FN(process_event_list, int lush_metrics)
           }
         }
 #endif
-        temporal_reuse_metric_id = hpcrun_new_metric();
-        hpcrun_set_metric_info_and_period(temporal_reuse_metric_id, "TEMPORAL", MetricFlags_ValFmt_Int, 1, metric_property_none);
-        spatial_reuse_metric_id = hpcrun_new_metric();
-        hpcrun_set_metric_info_and_period(spatial_reuse_metric_id, "SPATIAL", MetricFlags_ValFmt_Int, 1, metric_property_none);
-        reuse_memory_distance_metric_id = hpcrun_new_metric();
-        hpcrun_set_metric_info_and_period(reuse_memory_distance_metric_id, "MEMORY_DISTANCE_SUM", MetricFlags_ValFmt_Int, 1, metric_property_none);
-        reuse_memory_distance_count_metric_id = hpcrun_new_metric();
-        hpcrun_set_metric_info_and_period(reuse_memory_distance_count_metric_id, "MEMORY_DISTANCE_COUNT", MetricFlags_ValFmt_Int, 1, metric_property_none);
-        reuse_time_distance_metric_id = hpcrun_new_metric();
-        hpcrun_set_metric_info_and_period(reuse_time_distance_metric_id, "TIME_DISTANCE_SUM", MetricFlags_ValFmt_Int, 1, metric_property_none);
-        reuse_time_distance_count_metric_id = hpcrun_new_metric();
-        hpcrun_set_metric_info_and_period(reuse_time_distance_count_metric_id, "TIME_DISTANCE_COUNT", MetricFlags_ValFmt_Int, 1, metric_property_none);
+	temporal_reuse_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "TEMPORAL", MetricFlags_ValFmt_Int, 1, metric_property_none);
+	spatial_reuse_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "SPATIAL", MetricFlags_ValFmt_Int, 1, metric_property_none);
+	reuse_memory_distance_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "MEMORY_DISTANCE_SUM", MetricFlags_ValFmt_Int, 1, metric_property_none);
+	reuse_memory_distance_count_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "MEMORY_DISTANCE_COUNT", MetricFlags_ValFmt_Int, 1, metric_property_none);
+	reuse_time_distance_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "TIME_DISTANCE_SUM", MetricFlags_ValFmt_Int, 1, metric_property_none);
+	reuse_time_distance_count_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "TIME_DISTANCE_COUNT", MetricFlags_ValFmt_Int, 1, metric_property_none);
 
         // the next two buffers only for internal use
-        reuse_buffer_metric_ids[0] = hpcrun_new_metric();
-        hpcrun_set_metric_info_and_period(reuse_buffer_metric_ids[0], "REUSE_BUFFER_1", MetricFlags_ValFmt_Int, 1, metric_property_none);
-        reuse_buffer_metric_ids[1] = hpcrun_new_metric();
-        hpcrun_set_metric_info_and_period(reuse_buffer_metric_ids[1],"REUSE_BUFFER_2", MetricFlags_ValFmt_Int, 1, metric_property_none);
+	reuse_buffer_metric_ids[0] = hpcrun_set_new_metric_info_and_period(pthr_kind, "REUSE_BUFFER_1", MetricFlags_ValFmt_Int, 1, metric_property_none);
+	reuse_buffer_metric_ids[1] = hpcrun_set_new_metric_info_and_period(pthr_kind, "REUSE_BUFFER_2", MetricFlags_ValFmt_Int, 1, metric_property_none);
 
       }
       break;
@@ -1844,54 +1824,36 @@ METHOD_FN(process_event_list, int lush_metrics)
           }
         }
 #endif
-        temporal_reuse_metric_id = hpcrun_new_metric();
-        hpcrun_set_metric_info_and_period(temporal_reuse_metric_id, "TEMPORAL", MetricFlags_ValFmt_Int, 1, metric_property_none);
-        spatial_reuse_metric_id = hpcrun_new_metric();
-        hpcrun_set_metric_info_and_period(spatial_reuse_metric_id, "SPATIAL", MetricFlags_ValFmt_Int, 1, metric_property_none);
+	temporal_reuse_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "TEMPORAL", MetricFlags_ValFmt_Int, 1, metric_property_none);
+	spatial_reuse_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "SPATIAL", MetricFlags_ValFmt_Int, 1, metric_property_none);
 
-        l3_temporal_reuse_metric_id = hpcrun_new_metric();
-        hpcrun_set_metric_info_and_period(l3_temporal_reuse_metric_id, "L3_TEMPORAL", MetricFlags_ValFmt_Int, 1, metric_property_none);
-        l3_spatial_reuse_metric_id = hpcrun_new_metric();
-        hpcrun_set_metric_info_and_period(l3_spatial_reuse_metric_id, "L3_SPATIAL", MetricFlags_ValFmt_Int, 1, metric_property_none);
+	l3_temporal_reuse_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "L3_TEMPORAL", MetricFlags_ValFmt_Int, 1, metric_property_none);
+	l3_spatial_reuse_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "L3_SPATIAL", MetricFlags_ValFmt_Int, 1, metric_property_none);
 
-        comm_temporal_reuse_metric_id = hpcrun_new_metric();
-        hpcrun_set_metric_info_and_period(comm_temporal_reuse_metric_id, "COMM_TEMPORAL", MetricFlags_ValFmt_Int, 1, metric_property_none);
-        comm_spatial_reuse_metric_id = hpcrun_new_metric();
-        hpcrun_set_metric_info_and_period(comm_spatial_reuse_metric_id, "COMM_SPATIAL", MetricFlags_ValFmt_Int, 1, metric_property_none);
+	comm_temporal_reuse_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "COMM_TEMPORAL", MetricFlags_ValFmt_Int, 1, metric_property_none);
+	comm_spatial_reuse_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "COMM_SPATIAL", MetricFlags_ValFmt_Int, 1, metric_property_none);
 
 
-        reuse_memory_distance_metric_id = hpcrun_new_metric();
-        hpcrun_set_metric_info_and_period(reuse_memory_distance_metric_id, "MEMORY_DISTANCE_SUM", MetricFlags_ValFmt_Int, 1, metric_property_none);
-        reuse_memory_distance_count_metric_id = hpcrun_new_metric();
-        hpcrun_set_metric_info_and_period(reuse_memory_distance_count_metric_id, "MEMORY_DISTANCE_COUNT", MetricFlags_ValFmt_Int, 1, metric_property_none);
-        l3_reuse_memory_distance_metric_id = hpcrun_new_metric();
-        hpcrun_set_metric_info_and_period(l3_reuse_memory_distance_metric_id, "L3_MEMORY_DISTANCE_SUM", MetricFlags_ValFmt_Int, 1, metric_property_none);
-        l3_reuse_memory_distance_count_metric_id = hpcrun_new_metric();
-        hpcrun_set_metric_info_and_period(l3_reuse_memory_distance_count_metric_id, "L3_MEMORY_DISTANCE_COUNT", MetricFlags_ValFmt_Int, 1, metric_property_none); 
-        comm_reuse_memory_distance_metric_id = hpcrun_new_metric();
-        hpcrun_set_metric_info_and_period(comm_reuse_memory_distance_metric_id, "COMM_MEMORY_DISTANCE_SUM", MetricFlags_ValFmt_Int, 1, metric_property_none);
-        comm_reuse_memory_distance_count_metric_id = hpcrun_new_metric();
-        hpcrun_set_metric_info_and_period(comm_reuse_memory_distance_count_metric_id, "COMM_MEMORY_DISTANCE_COUNT", MetricFlags_ValFmt_Int, 1, metric_property_none);
-        reuse_time_distance_metric_id = hpcrun_new_metric();
-        hpcrun_set_metric_info_and_period(reuse_time_distance_metric_id, "TIME_DISTANCE_SUM", MetricFlags_ValFmt_Int, 1, metric_property_none);
-        reuse_time_distance_count_metric_id = hpcrun_new_metric();
-        hpcrun_set_metric_info_and_period(reuse_time_distance_count_metric_id, "TIME_DISTANCE_COUNT", MetricFlags_ValFmt_Int, 1, metric_property_none);
+	reuse_memory_distance_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "MEMORY_DISTANCE_SUM", MetricFlags_ValFmt_Int, 1, metric_property_none);
+	reuse_memory_distance_count_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "MEMORY_DISTANCE_COUNT", MetricFlags_ValFmt_Int, 1, metric_property_none);
+	l3_reuse_memory_distance_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "L3_MEMORY_DISTANCE_SUM", MetricFlags_ValFmt_Int, 1, metric_property_none);
+	l3_reuse_memory_distance_count_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "L3_MEMORY_DISTANCE_COUNT", MetricFlags_ValFmt_Int, 1, metric_property_none);
+	comm_reuse_memory_distance_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "COMM_MEMORY_DISTANCE_SUM", MetricFlags_ValFmt_Int, 1, metric_property_none); 
+	comm_reuse_memory_distance_count_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "COMM_MEMORY_DISTANCE_COUNT", MetricFlags_ValFmt_Int, 1, metric_property_none);
+	reuse_time_distance_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "TIME_DISTANCE_SUM", MetricFlags_ValFmt_Int, 1, metric_property_none);
+	reuse_time_distance_count_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "TIME_DISTANCE_COUNT", MetricFlags_ValFmt_Int, 1, metric_property_none);
 
-        // the next two buffers only for internal use
-        reuse_buffer_metric_ids[0] = hpcrun_new_metric();
-        hpcrun_set_metric_info_and_period(reuse_buffer_metric_ids[0], "REUSE_BUFFER_1", MetricFlags_ValFmt_Int, 1, metric_property_none);
-        reuse_buffer_metric_ids[1] = hpcrun_new_metric();
-        hpcrun_set_metric_info_and_period(reuse_buffer_metric_ids[1],"REUSE_BUFFER_2", MetricFlags_ValFmt_Int, 1, metric_property_none);
-
+	// the next two buffers only for internal use
+	reuse_buffer_metric_ids[0] = hpcrun_set_new_metric_info_and_period(pthr_kind, "REUSE_BUFFER_1", MetricFlags_ValFmt_Int, 1, metric_property_none);
+	reuse_buffer_metric_ids[1] = hpcrun_set_new_metric_info_and_period(pthr_kind, "REUSE_BUFFER_2", MetricFlags_ValFmt_Int, 1, metric_property_none);
       }
       break;
     case WP_TRUE_SHARING:
     case WP_IPC_TRUE_SHARING:
       // must have a canonical load map across processes
       hpcrun_set_ipc_load_map(true);
-      measured_metric_id = hpcrun_new_metric();
-      hpcrun_set_metric_info_and_period(measured_metric_id, "MONITORED", MetricFlags_ValFmt_Int, 1, metric_property_none);
-      SetUpTrueSharingMetrics();
+      measured_metric_id = hpcrun_set_new_metric_info_and_period(pthr_kind, "MONITORED", MetricFlags_ValFmt_Int, 1, metric_property_none);
+      SetUpTrueSharingMetrics(pthr_kind);
       break;
 
     default:
@@ -3603,6 +3565,7 @@ static WPTriggerActionType ComDetectiveWPCallback(WatchPointInfo_t *wpi, int sta
   int core_id2 = sched_getcpu();  
   int flag = 0;
   // if ts2 > tprev then
+  fprintf(stderr, "in ComDetectiveWPCallback 1\n");
   if((prev_timestamp < wpi->sample.bulletinBoardTimestamp) && ((trapTime - wpi->sample.bulletinBoardTimestamp)  <  wpi->sample.expirationPeriod)) { 
     if(wt->accessType == LOAD && wpi->sample.samplerAccessType == LOAD){
       if(wpi->sample.sampleType == ALL_LOAD) {
@@ -3630,7 +3593,7 @@ static WPTriggerActionType ComDetectiveWPCallback(WatchPointInfo_t *wpi, int sta
     }
   }
 
-
+  fprintf(stderr, "in ComDetectiveWPCallback 2\n");
   if (flag == 1) { // Load trap (WAR)
     void * cacheLineBaseAddress = (void *) ALIGN_TO_CACHE_LINE((size_t)wt->va);    
     double increment = (double) CACHE_LINE_SZ/MAX_WP_LENGTH / wpConfig.maxWP * global_sampling_period; 
@@ -3895,11 +3858,16 @@ static WPTriggerActionType ComDetectiveWPCallback(WatchPointInfo_t *wpi, int sta
     // tprev = ts2
     prev_timestamp = wpi->sample.bulletinBoardTimestamp;
   }
+  fprintf(stderr, "in ComDetectiveWPCallback 3\n");
 
   sample_val_t v = hpcrun_sample_callpath(wt->ctxt, measured_metric_id, SAMPLE_UNIT_INC, 0, 1, NULL);
+  fprintf(stderr, "before hpcrun_insert_special_node 0\n");
   cct_node_t *node = hpcrun_insert_special_node(v.sample_node, joinNode);
+  fprintf(stderr, "after hpcrun_insert_special_node 0\n");
   node = hpcrun_cct_insert_path_return_leaf(wpi->sample.node, node);
+  fprintf(stderr, "before cct_metric_data_increment\n");
   cct_metric_data_increment(metricId, node, (cct_metric_data_t){.i = 1});
+  fprintf(stderr, "in ComDetectiveWPCallback 4\n");
   return ALREADY_DISABLED;
 }
 
@@ -6310,8 +6278,11 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
 
 //#if 0	
                                 sample_val_t v = hpcrun_sample_callpath(context, measured_metric_id, SAMPLE_UNIT_INC, 0/*skipInner*/, 1/*isSync*/, NULL);
+				fprintf(stderr, "before hpcrun_insert_special_node 1\n");
                                 cct_node_t *node1 = hpcrun_insert_special_node(v.sample_node, joinNode);
+				fprintf(stderr, "after hpcrun_insert_special_node 1\n");
                                 node1 = hpcrun_cct_insert_path_return_leaf(item.node, node1);
+				fprintf(stderr, "before cct_metric_data_increment\n");
                                 // update the metricId
                                 cct_metric_data_increment(metricId, node1, (cct_metric_data_t){.i = 1});
 //#endif
@@ -6428,6 +6399,7 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
 			}
 			break;
     case WP_COMDETECTIVE: {
+			    fprintf(stderr, "WP_COMDETECTIVE 1\n");
                             int sType = -1;
                             sample_count++;
 
@@ -6463,6 +6435,7 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
                             // L1 = getCacheline ( M1 )
                             void * cacheLineBaseAddressVar = (void *) ALIGN_TO_CACHE_LINE((size_t)data_addr);
                             int item_not_found = 0;
+			    fprintf(stderr, "WP_COMDETECTIVE 2\n");
                             struct SharedEntry item;
                             do{
                               int64_t startCounter = bulletinBoard.counter;
@@ -6478,6 +6451,8 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
                                 break;
                               }
                             }while(1);
+
+			    fprintf(stderr, "WP_COMDETECTIVE 3\n");
 
                             int arm_watchpoint_flag = 0;
 
@@ -6832,8 +6807,11 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
                                 cct_metric_data_increment(metricId, node, (cct_metric_data_t){.i = 1});
                                  */
                                 sample_val_t v = hpcrun_sample_callpath(context, measured_metric_id, SAMPLE_UNIT_INC, 0/*skipInner*/, 1/*isSync*/, NULL);
+				fprintf(stderr, "before hpcrun_insert_special_node\n");
                                 cct_node_t *node1 = hpcrun_insert_special_node(v.sample_node, joinNode);
+				fprintf(stderr, "after hpcrun_insert_special_node\n");
                                 node1 = hpcrun_cct_insert_path_return_leaf(item.node, node1);
+				fprintf(stderr, "before cct_metric_data_increment\n");
                                 // update the metricId
                                 cct_metric_data_increment(metricId, node1, (cct_metric_data_t){.i = 1});
                                 // after
@@ -6842,6 +6820,8 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
                                 arm_watchpoint_flag = 1;
                               }
                             }
+
+			    fprintf(stderr, "WP_COMDETECTIVE 4\n");
 
                             if (arm_watchpoint_flag) {
                               // begin watchpoints
@@ -6905,6 +6885,8 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
                               // end watchpoints
                             }
 
+			    fprintf(stderr, "WP_COMDETECTIVE 5\n");
+
                             // if ( A1 is not STORE) or (entry != NULL and M2 has not expired) then
                             if(/*(accessType == LOAD)*/ (sType == ALL_LOAD)  || ((item.cacheLineBaseAddress != -1) && (me == item.tid) && ((curtime - item.time) <= (storeCurTime - storeLastTime)))) {
                             } else {
@@ -6937,6 +6919,7 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
                                 }
                               }
                             }
+			    fprintf(stderr, "WP_COMDETECTIVE 6\n");
                             // ends
 
                             lastTime = curtime;

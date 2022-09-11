@@ -179,6 +179,243 @@ hpcrun_stats_reinit(void)
   atomic_store_explicit(&acc_samples_dropped, 0, memory_order_relaxed);
 }
 
+//-----------------------------
+// watchpoints
+//-----------------------------
+
+void
+hpcrun_stats_num_samples_imprecise_inc(long val)
+{
+  atomic_fetch_add_explicit(&num_samples_imprecise, val, memory_order_relaxed);
+}
+
+
+long
+hpcrun_stats_num_samples_imprecise(void)
+{
+  return atomic_load_explicit(&num_samples_imprecise, memory_order_relaxed);
+}
+
+void
+hpcrun_stats_num_watchpoints_set_inc(long val)
+{
+  atomic_fetch_add_explicit(&num_watchpoints_set, val, memory_order_relaxed);
+}
+
+
+long
+hpcrun_stats_num_watchpoints_set(void)
+{
+  return atomic_load_explicit(&num_watchpoints_set, memory_order_relaxed);
+}
+
+void
+hpcrun_stats_num_watchpoints_triggered_inc(long val)
+{
+  atomic_fetch_add_explicit(&num_watchpoints_triggered, val, memory_order_relaxed);
+}
+
+long
+hpcrun_stats_num_watchpoints_triggered(void)
+{
+  return atomic_load_explicit(&num_watchpoints_triggered, memory_order_relaxed);
+}
+
+void
+hpcrun_stats_num_watchpoints_dropped_inc(long val)
+{
+  atomic_fetch_add_explicit(&num_watchpoints_dropped, val, memory_order_relaxed);
+}
+
+
+long
+hpcrun_stats_num_watchpoints_dropped(void)
+{
+  return atomic_load_explicit(&num_watchpoints_dropped, memory_order_relaxed);
+}
+
+void
+hpcrun_stats_num_watchpoints_imprecise_inc(long val)
+{
+  atomic_fetch_add_explicit(&num_watchpoints_imprecise, val, memory_order_relaxed);
+}
+
+
+long
+hpcrun_stats_num_watchpoints_imprecise(void)
+{
+  return atomic_load_explicit(&num_watchpoints_imprecise, memory_order_relaxed);
+}
+
+void
+hpcrun_stats_num_watchpoints_imprecise_address_inc(long val)
+{
+  atomic_fetch_add_explicit(&num_watchpoints_imprecise_address, val, memory_order_relaxed);
+}
+
+
+long
+hpcrun_stats_num_watchpoints_imprecise_address(void)
+{
+  return atomic_load_explicit(&num_watchpoints_imprecise_address, memory_order_relaxed);
+}
+
+
+void
+hpcrun_stats_num_watchpoints_imprecise_address_8_byte_inc(long val)
+{
+  atomic_fetch_add_explicit(&num_watchpoints_imprecise_address_8_byte, val, memory_order_relaxed);
+}
+
+
+long
+hpcrun_stats_num_watchpoints_imprecise_address_8_byte(void)
+{
+  return atomic_load_explicit(&num_watchpoints_imprecise_address_8_byte, memory_order_relaxed);
+}
+
+
+void
+hpcrun_stats_num_sample_triggering_watchpoints_inc(long val)
+{
+  atomic_fetch_add_explicit(&num_sample_triggering_watchpoints, val, memory_order_relaxed);
+}
+
+long
+hpcrun_stats_num_sample_triggering_watchpoints(void)
+{
+  return atomic_load_explicit(&num_sample_triggering_watchpoints, memory_order_relaxed);
+}
+
+void
+hpcrun_stats_num_insane_ip_inc(long val)
+{
+  atomic_fetch_add_explicit(&num_insane_ip, val, memory_order_relaxed);
+}
+
+
+long
+hpcrun_stats_num_insane_ip(void)
+{
+  return atomic_load_explicit(&num_insane_ip, memory_order_relaxed);
+}
+
+
+void
+hpcrun_stats_num_writtenBytes_inc(long val)
+{
+  atomic_fetch_add_explicit(&num_writtenBytes, val, memory_order_relaxed);
+}
+
+
+void
+hpcrun_stats_num_usedBytes_inc(long val)
+{
+  atomic_fetch_add_explicit(&num_usedBytes, val, memory_order_relaxed);
+}
+
+void
+hpcrun_stats_num_deadBytes_inc(long val)
+{
+  atomic_fetch_add_explicit(&num_deadBytes, val, memory_order_relaxed);
+}
+
+void
+hpcrun_stats_num_newBytes_inc(long val)
+{
+  atomic_fetch_add_explicit(&num_newBytes, val, memory_order_relaxed);
+}
+
+void
+hpcrun_stats_num_oldAppxBytes_inc(long val)
+{
+  atomic_fetch_add_explicit(&num_oldAppxBytes, val, memory_order_relaxed);
+}
+
+void
+hpcrun_stats_num_oldBytes_inc(long val)
+{
+  atomic_fetch_add_explicit(&num_oldBytes, val, memory_order_relaxed);
+}
+
+void
+hpcrun_stats_num_loadedBytes_inc(long val)
+{
+  atomic_fetch_add_explicit(&num_loadedBytes, val, memory_order_relaxed);
+}
+
+void
+hpcrun_stats_num_accessedIns_inc(long val)
+{
+  atomic_fetch_add_explicit(&num_accessedIns, val, memory_order_relaxed);
+}
+
+void
+hpcrun_stats_num_reuse_inc(long val)
+{
+  atomic_fetch_add_explicit(&num_reuse, val, memory_order_relaxed);
+}
+
+void
+hpcrun_stats_num_reuseTemporal_inc(long val)
+{
+  atomic_fetch_add_explicit(&num_reuseTemporal, val, memory_order_relaxed);
+}
+
+void
+hpcrun_stats_num_reuseSpatial_inc(long val)
+{
+  atomic_fetch_add_explicit(&num_reuseSpatial, val, memory_order_relaxed);
+}
+
+void
+hpcrun_stats_num_latency_inc(long val)
+{
+  atomic_fetch_add_explicit(&num_latency, val, memory_order_relaxed);
+}
+
+void
+hpcrun_stats_num_corrected_reuse_distance_inc(long val)
+{
+  atomic_fetch_add_explicit(&num_corrected_reuse_distance, val, memory_order_relaxed);
+}
+
+void
+hpcrun_stats_num_falseWWIns_inc(long val)
+{
+  atomic_fetch_add_explicit(&num_falseWWIns, val, memory_order_relaxed);
+}
+
+
+void
+hpcrun_stats_num_falseRWIns_inc(long val)
+{
+  atomic_fetch_add_explicit(&num_falseRWIns, val, memory_order_relaxed);
+}
+
+void
+hpcrun_stats_num_falseWRIns_inc(long val)
+{
+  atomic_fetch_add_explicit(&num_falseWRIns, val, memory_order_relaxed);
+}
+
+void
+hpcrun_stats_num_trueWWIns_inc(long val)
+{
+    atomic_fetch_add_explicit(&num_trueWWIns, val, memory_order_relaxed);
+}
+
+void
+hpcrun_stats_num_trueRWIns_inc(long val)
+{
+    atomic_fetch_add_explicit(&num_trueRWIns, val, memory_order_relaxed);
+}
+
+void
+hpcrun_stats_num_trueWRIns_inc(long val)
+{
+    atomic_fetch_add_explicit(&num_trueWRIns, val, memory_order_relaxed);
+}
 
 //-----------------------------
 // samples total 
