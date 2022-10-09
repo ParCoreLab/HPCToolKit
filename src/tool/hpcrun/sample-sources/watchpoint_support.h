@@ -166,6 +166,26 @@ typedef struct WPConfig {
 
 extern WPConfig_t wpConfig;
 
+typedef enum WP_CLIENT_ID{
+  WP_DEADSPY,
+  WP_REDSPY,
+  WP_LOADSPY,
+  WP_REUSE,
+  WP_REUSETRACKER,
+  WP_AMD_COMM,
+  WP_AMD_REUSE,
+  WP_AMD_REUSETRACKER,
+  WP_TEMPORAL_REUSE,
+  WP_SPATIAL_REUSE,
+  WP_FALSE_SHARING,
+  WP_COMDETECTIVE,
+  WP_ALL_SHARING,
+  WP_TRUE_SHARING,
+  WP_IPC_FALSE_SHARING,
+  WP_IPC_TRUE_SHARING,
+  WP_IPC_ALL_SHARING,
+  WP_MAX_CLIENTS }WP_CLIENT_ID;
+
 typedef struct MonitoredNodeStruct{
         uint64_t timestamp;
         uint64_t trap_timestamp;

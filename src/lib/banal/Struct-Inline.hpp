@@ -157,14 +157,14 @@ public:
     pretty_index = strTab.str2index(node.getPrettyName());
   }
 
-  bool operator == (const FLPIndex rhs)
+  bool operator == (const FLPIndex rhs) const
   {
     return file_index == rhs.file_index
       && line_num == rhs.line_num
       && proc_index == rhs.proc_index;
   }
 
-  bool operator != (const FLPIndex rhs)
+  bool operator != (const FLPIndex rhs) const
   {
     return ! (*this == rhs);
   }
@@ -174,7 +174,7 @@ public:
 // Compare (file, line, proc) indices lexigraphically.
 class FLPCompare {
 public:
-  bool operator() (const FLPIndex t1, const FLPIndex t2)
+  bool operator() (const FLPIndex t1, const FLPIndex t2) const
   {
     if (t1.file_index < t2.file_index) { return true; }
     if (t1.file_index > t2.file_index) { return false; }
