@@ -916,7 +916,7 @@ static void PopulateBlackListAddresses() {
     fclose(loadmap);
     // No TLS
     extern void * __tls_get_addr (void *);
-    blackListAddresses[numBlackListAddresses].startAddr = ((void *)__tls_get_addr) - 1000 ;
+    blackListAddresses[numBlackListAddresses].startAddr = (void *) (((uint64_t) __tls_get_addr) - 1000);
     blackListAddresses[numBlackListAddresses].endAddr = ((void *)__tls_get_addr) + 1000;
     numBlackListAddresses++;
 
