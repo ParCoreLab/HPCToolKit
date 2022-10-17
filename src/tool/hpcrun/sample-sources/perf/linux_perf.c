@@ -998,7 +998,6 @@ METHOD_FN(supports_event, const char *ev_str)
 
 	// this is not a predefined event, we need to consult to perfmon (if enabled)
 #ifdef ENABLE_PERFMON
-	fprintf(stderr, "final event check is here\n");
 	return pfmu_isSupported(ev_tmp) >= 0;
 #else
 	return (strncmp(event_name, ev_str, strlen(event_name)) == 0);
