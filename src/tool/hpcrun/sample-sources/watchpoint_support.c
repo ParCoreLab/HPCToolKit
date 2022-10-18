@@ -1916,7 +1916,7 @@ static int OnWatchPoint(int signum, siginfo_t *info, void *context){
 
 //#if 0
  if( false == CollectWatchPointTriggerInfo(wpi, &wpt, context)) {
-    fprintf(stderr, "in OnWatchpoint at that point 3!!!!\n");
+    //fprintf(stderr, "in OnWatchpoint at that point 3!!!!\n");
     tData.numWatchpointDropped++;
     retVal = DISABLE_WP; // disable if unable to collect any info.
     wp_dropped++;

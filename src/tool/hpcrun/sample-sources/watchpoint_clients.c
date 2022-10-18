@@ -6938,10 +6938,10 @@ void dump_profiling_metrics() {
           //assert(linux_perf_read_event_counter( amd_reuse_distance_event, val) >= 0);
           //fprintf(stderr, "load and store counter: %ld\n", val[0]);
 
-	  fprintf(stderr, "bb_store_count: %d, all_store_count: %d\n", bb_store_count, all_store_count);
+	  //fprintf(stderr, "bb_store_count: %d, all_store_count: %d\n", bb_store_count, all_store_count);
 	  //double scale_ratio = (double) val[0]/amd_global_sampling_period / /*micro_op_sample;*/mem_access_sample; //mem_access_sample / store_count;
 	  //fprintf(stderr, "micro_op_sample: %d, mem_access_sample: %d, valid_mem_access_sample: %d, sample_count: %d, original_sample_count: %d, store_count: %d, scale_ratio: %0.2lf\n", micro_op_sample, mem_access_sample, valid_mem_access_sample, sample_count, original_sample_count, store_count, scale_ratio);
-	  fprintf(stderr, "micro_op_sample: %d, mem_access_sample: %d, valid_mem_access_sample: %d, sample_count: %d, original_sample_count: %d, store_count: %d, global_load_count: %d\n", micro_op_sample, mem_access_sample, valid_mem_access_sample, sample_count, original_sample_count, store_count, global_load_count);
+	  //fprintf(stderr, "micro_op_sample: %d, mem_access_sample: %d, valid_mem_access_sample: %d, sample_count: %d, original_sample_count: %d, store_count: %d, global_load_count: %d\n", micro_op_sample, mem_access_sample, valid_mem_access_sample, sample_count, original_sample_count, store_count, global_load_count);
 	  //adjust_communication_volume(scale_ratio);
   }
 //#endif
