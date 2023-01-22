@@ -31,6 +31,9 @@
 
 #define REG_CURRENT_PROCESS _IOW('a', 'a', int32_t*)
 #define ASSIGN_FD 102
+#define GET_SAMPLE_COUNT 103
+#define GET_VALID_MEM_SAMPLE_COUNT 104
+#define GET_VALID_STORE_SAMPLE_COUNT 105
 
 typedef union {
     uint64_t val;

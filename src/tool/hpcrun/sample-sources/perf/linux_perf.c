@@ -177,7 +177,7 @@ int buffer_size = 0;
 __thread char *global_buffer = NULL;
 __thread int original_sample_count = 0;
 __thread long ibs_count = 0;
-
+extern __thread int received_store_count;
 // ends
 
 extern int global_thread_count;
@@ -927,6 +927,7 @@ METHOD_FN(stop)
 	for(int i=0; i<nevents; i++) {
 		if(hpcrun_ev_is(event_thread[i].event->metric_desc->name, "IBS_OP")) {
 			if (event_thread[i].fd >= 0) {
+				fprintf(stderr, "lost sample count: %ld in thread %d, total micro-operation sample count: %ld, total valid mem sample count: %ld, total valid store sample count: %ld\n", ioctl(event_thread[i].fd, GET_LOST), TD_GET(core_profile_trace_data.id), ioctl(event_thread[i].fd, GET_SAMPLE_COUNT), ioctl(event_thread[i].fd, GET_VALID_MEM_SAMPLE_COUNT), ioctl(event_thread[i].fd, GET_VALID_STORE_SAMPLE_COUNT));
                         	close(event_thread[i].fd);
 				free(global_buffer);
 			}
@@ -1629,6 +1630,8 @@ read_ibs_buffer(event_thread_t *current, perf_mmap_data_t *mmap_info, ibs_op_t *
 	mmap_info->pid = op_data->pid;
 	mmap_info->load = op_data->op_data3.reg.ibs_ld_op;
 	mmap_info->store = op_data->op_data3.reg.ibs_st_op;
+	if(mmap_info->store == 1)
+		received_store_count++;
 	mmap_info->mem_width = op_data->op_data3.reg.ibs_op_mem_width;
 	mmap_info->addr_valid = op_data->op_data3.reg.ibs_lin_addr_valid;
 	//if(mmap_info->addr_valid)

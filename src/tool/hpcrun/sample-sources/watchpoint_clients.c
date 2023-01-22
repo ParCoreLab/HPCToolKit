@@ -225,6 +225,7 @@ extern int dynamic_global_thread_count;
 int global_load_count = 0;
 __thread int load_count = 0;
 __thread int store_count = 0;
+__thread int received_store_count = 0;
 __thread int addr_valid_count = 0;
 __thread int phy_addr_valid_count = 0;
 __thread int micro_op_sample = 0;
@@ -6941,7 +6942,7 @@ void dump_profiling_metrics() {
 	  //fprintf(stderr, "bb_store_count: %d, all_store_count: %d\n", bb_store_count, all_store_count);
 	  //double scale_ratio = (double) val[0]/amd_global_sampling_period / /*micro_op_sample;*/mem_access_sample; //mem_access_sample / store_count;
 	  //fprintf(stderr, "micro_op_sample: %d, mem_access_sample: %d, valid_mem_access_sample: %d, sample_count: %d, original_sample_count: %d, store_count: %d, scale_ratio: %0.2lf\n", micro_op_sample, mem_access_sample, valid_mem_access_sample, sample_count, original_sample_count, store_count, scale_ratio);
-	  //fprintf(stderr, "micro_op_sample: %d, mem_access_sample: %d, valid_mem_access_sample: %d, sample_count: %d, original_sample_count: %d, store_count: %d, global_load_count: %d\n", micro_op_sample, mem_access_sample, valid_mem_access_sample, sample_count, original_sample_count, store_count, global_load_count);
+	  fprintf(stderr, "micro_op_sample: %d, mem_access_sample: %d, valid_mem_access_sample: %d, addr_valid_count: %d, sample_count: %d, original_sample_count: %d, store_count: %d, received_store_count: %d, global_load_count: %d\n", micro_op_sample, mem_access_sample, valid_mem_access_sample, addr_valid_count, sample_count, original_sample_count, store_count, received_store_count, global_load_count);
 	  //adjust_communication_volume(scale_ratio);
   }
 //#endif
