@@ -1482,8 +1482,8 @@ METHOD_FN(process_event_list, int lush_metrics)
     case WP_IPC_ALL_SHARING:
       // must have a canonical load map across processes
       hpcrun_set_ipc_load_map(true);
-      measured_metric_id = hpcrun_new_metric();
-      hpcrun_set_metric_info_and_period(measured_metric_id, "AMD_COMM", MetricFlags_ValFmt_Int, 1, metric_property_none);
+      //measured_metric_id = hpcrun_new_metric();
+      //hpcrun_set_metric_info_and_period(measured_metric_id, "COMMUNICATION", MetricFlags_ValFmt_Int, 1, metric_property_none);
       SetUpFalseSharingMetrics();
       SetUpTrueSharingMetrics();
       break;
