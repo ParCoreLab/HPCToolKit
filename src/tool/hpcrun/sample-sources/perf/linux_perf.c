@@ -185,7 +185,6 @@ extern int dynamic_global_thread_count;
 extern long global_l2_miss_sampling_period;
 extern int l3_reuse_distance_event_rqsts;
 extern int amd_reuse_distance_event;
-extern __thread int unvalidated_store_count;
 //extern int amd_micro_op_event;
 int ibs_event = -1;
 bool amd_ibs_flag = false;
@@ -1791,7 +1790,6 @@ perf_event_handler(
 		tmp = read(fd, global_buffer, BUFFER_SIZE_B);
 	}
 
-	unvalidated_store_count = ioctl(fd, GET_VALID_STORE_SAMPLE_COUNT);
 	// Increment the number of overflows for the current event
 	current->num_overflows++;
 	// ----------------------------------------------------------------------------

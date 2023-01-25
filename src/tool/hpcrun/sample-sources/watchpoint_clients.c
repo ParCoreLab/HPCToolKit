@@ -225,7 +225,6 @@ extern int dynamic_global_thread_count;
 int global_load_count = 0;
 __thread int load_count = 0;
 __thread int store_count = 0;
-__thread int unvalidated_store_count = 0;
 __thread int addr_valid_count = 0;
 __thread int phy_addr_valid_count = 0;
 __thread int micro_op_sample = 0;
@@ -6943,11 +6942,7 @@ void dump_profiling_metrics() {
 	  //double scale_ratio = (double) val[0]/amd_global_sampling_period / /*micro_op_sample;*/mem_access_sample; //mem_access_sample / store_count;
 	  //fprintf(stderr, "micro_op_sample: %d, mem_access_sample: %d, valid_mem_access_sample: %d, sample_count: %d, original_sample_count: %d, store_count: %d, scale_ratio: %0.2lf\n", micro_op_sample, mem_access_sample, valid_mem_access_sample, sample_count, original_sample_count, store_count, scale_ratio);
 	  //fprintf(stderr, "micro_op_sample: %d, mem_access_sample: %d, valid_mem_access_sample: %d, sample_count: %d, original_sample_count: %d, store_count: %d, global_load_count: %d\n", micro_op_sample, mem_access_sample, valid_mem_access_sample, sample_count, original_sample_count, store_count, global_load_count);
-	  //scale_ratio = (( store_count_in_thread_0 / mem_access_count_in_thread_0 ) * valid_mem_access_count_in_thread_0) / detected_store_count_in_thread_0
-	  double scale_ratio = (( (double) unvalidated_store_count / (double) mem_access_sample ) * (double) valid_mem_access_sample ) / store_count;
-	  //fprintf(stderr, "unvalidated_store_count: %d, mem_access_sample: %d, valid_mem_access_sample: %d, store_count: %d, scale_ratio: %0.2lf\n", unvalidated_store_count, mem_access_sample, valid_mem_access_sample, store_count, scale_ratio);
-	  //fprintf(stderr, "unvalidated_store_count: %d, store_count: %d, scale_ratio: %0.2lf\n", unvalidated_store_count, store_count, scale_ratio);
-	  adjust_communication_volume(scale_ratio);
+	  //adjust_communication_volume(scale_ratio);
   }
 //#endif
   if(theWPConfig->id == WP_COMDETECTIVE || theWPConfig->id == WP_AMD_COMM) {
