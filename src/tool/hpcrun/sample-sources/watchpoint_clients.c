@@ -1483,7 +1483,7 @@ METHOD_FN(process_event_list, int lush_metrics)
       // must have a canonical load map across processes
       hpcrun_set_ipc_load_map(true);
       measured_metric_id = hpcrun_new_metric();
-      hpcrun_set_metric_info_and_period(measured_metric_id, "COMMUNICATION", MetricFlags_ValFmt_Int, 1, metric_property_none);
+      hpcrun_set_metric_info_and_period(measured_metric_id, "AMD_COMM", MetricFlags_ValFmt_Int, 1, metric_property_none);
       SetUpFalseSharingMetrics();
       SetUpTrueSharingMetrics();
       break;
@@ -3519,7 +3519,7 @@ if((prev_timestamp < wpi->sample.bulletinBoardTimestamp) && ((trapTime - wpi->sa
     prev_timestamp = wpi->sample.bulletinBoardTimestamp;
   }
 //#if 0
-  sample_val_t v = hpcrun_sample_callpath(wt->ctxt, measured_metric_id, SAMPLE_UNIT_INC, 0, 1, NULL);
+  sample_val_t v = hpcrun_sample_callpath(wt->ctxt, /*measured_metric_id*/metricId, SAMPLE_UNIT_INC, 0, 1, NULL);
   cct_node_t *node = hpcrun_insert_special_node(v.sample_node, joinNode);
   node = hpcrun_cct_insert_path_return_leaf(wpi->sample.node, node);
   cct_metric_data_increment(metricId, node, (cct_metric_data_t){.i = 1});
@@ -6078,7 +6078,7 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
 					load_count++;
 					//fprintf(stderr, "load sample is detected, load: %d\n", mmap_data->load);
 				}
-				int metricId = -1;
+				//int metricId = -1;
                             	const void* joinNode;  
                             	int joinNodeIdx = isSamplePointAccurate? E_ACCURATE_JOIN_NODE_IDX : E_INACCURATE_JOIN_NODE_IDX;
 
@@ -6166,10 +6166,11 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
                                   ts_core_matrix_size =  max_core_num;
                                   as_core_matrix_size =  max_core_num;
                                 }
+				int metricId = -1;
 				//fprintf(stderr, "accessLen of sampled access is %d\n", accessLen);
                                 if(flag == 1) {  // if sType is all_loads (WAR)
                                   int id = -1;
-                                  int metricId = -1;
+                                  //int metricId = -1;
                                   double increment = /*valid_sample_count1 / valid_sample_count **/ /*thread_coefficient(as_matrix_size) **/ global_sampling_period; //* thread_coefficient(as_matrix_size);
 #if 0
 				  if(global_thread_count > 2)
@@ -6224,7 +6225,7 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
                                 }
                                 else if(flag == 2) {  // if sType is all_stores (WAW)
                                   int id = -1;
-                                  int metricId = -1;
+                                  //int metricId = -1;
                                   double increment = /*valid_sample_count1 / valid_sample_count **/ /*thread_coefficient(as_matrix_size) **/ global_sampling_period; //* thread_coefficient(as_matrix_size);
 #if 0
 				  if(global_thread_count > 2)
@@ -6282,7 +6283,7 @@ SET_FS_WP: ReadSharedDataTransactionally(&localSharedData);
                                 }
 
 //#if 0	
-                                sample_val_t v = hpcrun_sample_callpath(context, measured_metric_id, SAMPLE_UNIT_INC, 0/*skipInner*/, 1/*isSync*/, NULL);
+                                sample_val_t v = hpcrun_sample_callpath(context, metricId /*measured_metric_id*/, SAMPLE_UNIT_INC, 0/*skipInner*/, 1/*isSync*/, NULL);
                                 cct_node_t *node1 = hpcrun_insert_special_node(v.sample_node, joinNode);
                                 node1 = hpcrun_cct_insert_path_return_leaf(item.node, node1);
                                 // update the metricId
