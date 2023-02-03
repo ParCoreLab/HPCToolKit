@@ -347,7 +347,7 @@ uint64_t detected_store_counter = 0;
 #define WP_IPC_TRUE_SHARING_EVENT_NAME "WP_IPC_TRUE_SHARING"
 #define WP_IPC_ALL_SHARING_EVENT_NAME "WP_IPC_ALL_SHARING"
 
-
+#if 0
 typedef enum WP_CLIENT_ID{
   WP_DEADSPY,
   WP_REDSPY,
@@ -367,6 +367,7 @@ typedef enum WP_CLIENT_ID{
   WP_IPC_TRUE_SHARING,
   WP_IPC_ALL_SHARING,
   WP_MAX_CLIENTS }WP_CLIENT_ID;
+#endif
 
 WP_CLIENT_ID event_id;
 

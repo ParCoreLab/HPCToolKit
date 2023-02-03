@@ -129,6 +129,7 @@ int dynamic_global_thread_count;
 //const WatchPointInfo_t dummyWPInfo = {.sample = {}, .startTime =0, .fileHandle= -1, .isActive= false, .mmapBuffer=0};
 //const struct DUMMY_WATCHPOINT dummyWP[MAX_WP_SLOTS];
 
+#if 0
 typedef enum WP_CLIENT_ID{
   WP_DEADSPY,
   WP_REDSPY,
@@ -148,8 +149,9 @@ typedef enum WP_CLIENT_ID{
   WP_IPC_TRUE_SHARING,
   WP_IPC_ALL_SHARING,
   WP_MAX_CLIENTS }WP_CLIENT_ID;
+#endif
 
-WP_CLIENT_ID event_id;
+extern WP_CLIENT_ID event_id;
 
 // Data structure that is given by clients to set a WP
 typedef struct ThreadData{
