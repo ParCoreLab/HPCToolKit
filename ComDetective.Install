@@ -1,4 +1,4 @@
-Requirement
+Requirements
 ===============
 - Linux kernel version 5.0.0 or higher
 - An Intel machine that supports Processor Event-Based Sampling (PEBS), i.e. Nehalem or its successors
